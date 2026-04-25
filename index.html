@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcelo · Athlete Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --card: #161a23;
+    --border: #252b38;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --orange: #f97316;
+    --teal: #14b8a6;
+    --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(22,26,35,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header .title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  header .subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  header .badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
+    color: var(--green); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  }
+  header .badge span { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .grid { display: grid; padding: 24px 28px; gap: 16px; }
+  .row-top { grid-template-columns: repeat(4, 1fr); }
+  .row-mid { grid-template-columns: 3fr 2fr; }
+  .row-bot { grid-template-columns: 2fr 3fr; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px;
+  }
+  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+  .card-source { font-size: 10px; color: var(--muted); opacity: 0.6; margin-top: 4px; }
+
+  /* KPI cards */
+  .kpi { display: flex; flex-direction: column; gap: 4px; }
+  .kpi-value { font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+  .kpi-unit { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .kpi-delta { font-size: 12px; margin-top: 6px; }
+
+  .color-green { color: var(--green); }
+  .color-yellow { color: var(--yellow); }
+  .color-red { color: var(--red); }
+  .color-blue { color: var(--blue); }
+  .color-purple { color: var(--purple); }
+  .color-orange { color: var(--orange); }
+  .color-teal { color: var(--teal); }
+
+  /* Progress bar */
+  .progress-row { margin-top: 12px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .progress-bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+
+  /* Macro pills */
+  .macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .macro { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px; text-align: center; }
+  .macro-val { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .macro-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+
+  /* Workout list */
+  .workout-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .workout-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+  }
+  .workout-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .workout-info { flex: 1; min-width: 0; }
+  .workout-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .workout-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .workout-tss { font-size: 12px; font-weight: 600; color: var(--blue); flex-shrink: 0; }
+
+  /* Fitness badges */
+  .fitness-badges { display: flex; gap: 10px; margin-top: 16px; }
+  .f-badge { flex: 1; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px; text-align: center; }
+  .f-badge-val { font-size: 26px; font-weight: 800; letter-spacing: -1px; }
+  .f-badge-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; }
+
+  /* Status chip */
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: rgba(234,179,8,0.12); color: var(--yellow); border: 1px solid rgba(234,179,8,0.25);
+    margin-top: 12px;
+  }
+
+  canvas { max-height: 200px; }
+
+  .chart-wrap { margin-top: 14px; }
+
+  /* Sleep breakdown */
+  .sleep-stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  .stage { text-align: center; padding: 10px 6px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+  .stage-val { font-size: 18px; font-weight: 700; }
+  .stage-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+  .hrv-row { display: flex; align-items: baseline; gap: 8px; margin-top: 8px; }
+  .hrv-val { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; color: var(--purple); }
+  .hrv-unit { font-size: 13px; color: var(--muted); }
+
+  /* Meal list */
+  .meal-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .meal-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+  .meal-name { font-size: 12px; font-weight: 500; }
+  .meal-type { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .meal-cal { font-size: 13px; font-weight: 600; color: var(--orange); }
+
+  /* Water */
+  .water-note { font-size: 13px; color: var(--muted); margin-top: 8px; padding: 8px 10px; background: rgba(239,68,68,0.08); border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); }
+
+  @media (max-width: 1100px) {
+    .row-top { grid-template-columns: repeat(2, 1fr); }
+    .row-mid, .row-bot { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="title">Marcelo Lavanhini</div>
+    <div class="subtitle">Athlete Dashboard · April 25, 2026</div>
+  </div>
+  <div class="badge"><span></span> Live data</div>
+</header>
+
+<!-- Row 1: KPIs -->
+<div class="grid row-top">
+
+  <!-- WHOOP Recovery -->
+  <div class="card">
+    <div class="card-label">Recovery Score</div>
+    <div class="kpi">
+      <div class="kpi-value color-yellow">68<span style="font-size:24px">%</span></div>
+      <div class="kpi-unit">Moderate recovery</div>
+      <div class="kpi-delta color-yellow">↑ from 39% yesterday</div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--yellow)"></div></div>
+    </div>
+    <div class="hrv-row" style="margin-top:14px">
+      <div class="hrv-val">33.4</div>
+      <div class="hrv-unit">HRV ms · RHR 80 bpm</div>
+    </div>
+    <div class="card-source">WHOOP</div>
+  </div>
+
+  <!-- Sleep -->
+  <div class="card">
+    <div class="card-label">Sleep Performance</div>
+    <div class="kpi">
+      <div class="kpi-value color-green">81<span style="font-size:24px">%</span></div>
+      <div class="kpi-unit">8h 13m in bed · 9 cycles</div>
+      <div class="kpi-delta color-green">Efficiency 89.5%</div>
+    </div>
+    <div class="sleep-stages" style="margin-top:14px">
+      <div class="stage"><div class="stage-val color-blue">3.7h</div><div class="stage-lbl">Light</div></div>
+      <div class="stage"><div class="stage-val color-purple">1.97h</div><div class="stage-lbl">Deep</div></div>
+      <div class="stage"><div class="stage-val color-teal">2.56h</div><div class="stage-lbl">REM</div></div>
+      <div class="stage"><div class="stage-val color-red">0.97h</div><div class="stage-lbl">Awake</div></div>
+    </div>
+    <div class="card-source">WHOOP</div>
+  </div>
+
+  <!-- Strain -->
+  <div class="card">
+    <div class="card-label">Day Strain</div>
+    <div class="kpi">
+      <div class="kpi-value color-blue">6.2</div>
+      <div class="kpi-unit">Today (so far) · Max 21</div>
+      <div class="kpi-delta color-muted">Yesterday: 13.8</div>
+    </div>
+    <div class="progress-row" style="margin-top:12px">
+      <div class="progress-bar"><div class="progress-fill" style="width:29%;background:var(--blue)"></div></div>
+    </div>
+    <div style="margin-top:14px; font-size:12px; color:var(--muted)">
+      Avg HR today <span style="color:var(--text); font-weight:600">85 bpm</span> · Max <span style="color:var(--text); font-weight:600">146 bpm</span>
+    </div>
+    <div class="card-source">WHOOP</div>
+  </div>
+
+  <!-- Nutrition -->
+  <div class="card">
+    <div class="card-label">Nutrition Today</div>
+    <div class="kpi">
+      <div class="kpi-value color-orange">620</div>
+      <div class="kpi-unit">kcal · 2 meals logged</div>
+    </div>
+    <div class="macros">
+      <div class="macro"><div class="macro-val color-blue">76g</div><div class="macro-lbl">Protein</div></div>
+      <div class="macro"><div class="macro-val color-yellow">31g</div><div class="macro-lbl">Carbs</div></div>
+      <div class="macro"><div class="macro-val color-red">21g</div><div class="macro-lbl">Fat</div></div>
+    </div>
+    <div class="water-note" style="margin-top:10px">💧 No water logged today</div>
+    <div class="card-source">Nutrition MCP</div>
+  </div>
+
+</div>
+
+<!-- Row 2: PMC Chart + Weekly Workouts -->
+<div class="grid row-mid">
+
+  <!-- PMC chart -->
+  <div class="card">
+    <div class="card-label">Performance Management (14 days)</div>
+    <div class="fitness-badges">
+      <div class="f-badge"><div class="f-badge-val color-blue">28.3</div><div class="f-badge-lbl">CTL Fitness</div></div>
+      <div class="f-badge"><div class="f-badge-val color-red">35.8</div><div class="f-badge-lbl">ATL Fatigue</div></div>
+      <div class="f-badge"><div class="f-badge-val color-yellow">-8.7</div><div class="f-badge-lbl">TSB Form</div></div>
+      <div class="f-badge"><div class="f-badge-val" style="font-size:16px">271.6</div><div class="f-badge-lbl">TSS this week</div></div>
+    </div>
+    <div class="status-chip">⚡ Tired — absorbing training load</div>
+    <div class="chart-wrap"><canvas id="pmcChart"></canvas></div>
+    <div class="card-source">TrainingPeaks</div>
+  </div>
+
+  <!-- Weekly workouts -->
+  <div class="card">
+    <div class="card-label">This Week's Workouts</div>
+    <div class="workout-list">
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Rodagem Corrida/Caminhada</div>
+          <div class="workout-meta">Apr 20 · 2.9 km · 26 min</div>
+        </div>
+        <div class="workout-tss">19 TSS</div>
+      </div>
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Intervalado Vo2</div>
+          <div class="workout-meta">Apr 22 · 4.5 km · 41 min</div>
+        </div>
+        <div class="workout-tss">30 TSS</div>
+      </div>
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Intervalado Misto Z3/Z4</div>
+          <div class="workout-meta">Apr 22 · 20.8 km · 48 min</div>
+        </div>
+        <div class="workout-tss">40 TSS</div>
+      </div>
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Rodagem Corrida/Caminhada</div>
+          <div class="workout-meta">Apr 24 · 6.4 km · 51 min</div>
+        </div>
+        <div class="workout-tss">50 TSS</div>
+      </div>
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Strength</div>
+          <div class="workout-meta">Apr 24 · 24 min</div>
+        </div>
+        <div class="workout-tss">16 TSS</div>
+      </div>
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Giro Regenerativo</div>
+          <div class="workout-meta">Apr 25 · 12.6 km · 33 min</div>
+        </div>
+        <div class="workout-tss">29 TSS</div>
+      </div>
+      <div class="workout-item" style="border-color:rgba(99,102,241,0.3); background:rgba(99,102,241,0.06)">
+        <div class="workout-dot" style="background:var(--accent)"></div>
+        <div class="workout-info">
+          <div class="workout-name" style="color:var(--accent)">Rodagem Corrida/Caminhada</div>
+          <div class="workout-meta">Apr 26 · Planned · 76 min</div>
+        </div>
+        <div class="workout-tss" style="color:var(--accent)">87 TSS</div>
+      </div>
+    </div>
+    <div class="card-source">TrainingPeaks</div>
+  </div>
+
+</div>
+
+<!-- Row 3: Recovery trend + Sleep trend -->
+<div class="grid row-bot">
+
+  <!-- Meals detail -->
+  <div class="card">
+    <div class="card-label">Today's Meals</div>
+    <div class="meal-list">
+      <div class="meal-item">
+        <div>
+          <div class="meal-type">Breakfast</div>
+          <div class="meal-name">Whey + Creatine + Orgain + Ketone IQ</div>
+        </div>
+        <div class="meal-cal">310 kcal</div>
+      </div>
+      <div style="padding: 4px 10px; font-size:11px; color:var(--muted)">
+        58g protein · 12g carbs · 2g fat
+      </div>
+      <div class="meal-item">
+        <div>
+          <div class="meal-type">Snack</div>
+          <div class="meal-name">Pão de queijo + Chicharrones + Diet Coke</div>
+        </div>
+        <div class="meal-cal">310 kcal</div>
+      </div>
+      <div style="padding: 4px 10px; font-size:11px; color:var(--muted)">
+        18g protein · 19g carbs · 19g fat
+      </div>
+    </div>
+    <div style="margin-top:14px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border)">
+      <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px">Daily Totals</div>
+      <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:8px; text-align:center">
+        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">620</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--blue)">76g</div><div style="font-size:10px; color:var(--muted)">protein</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">31g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--red)">21g</div><div style="font-size:10px; color:var(--muted)">fat</div></div>
+      </div>
+    </div>
+    <div class="card-source">Nutrition MCP</div>
+  </div>
+
+  <!-- 7-day trends -->
+  <div class="card">
+    <div class="card-label">7-Day Trends — Recovery, Strain & Sleep</div>
+    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="card-source" style="margin-top:10px">WHOOP</div>
+  </div>
+
+</div>
+
+<div style="padding: 16px 28px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px;">
+  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 25, 2026 at session start
+</div>
+
+<script>
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 14, padding: 14 } } },
+  scales: {
+    x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+    y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+  }
+};
+
+// PMC Chart
+new Chart(document.getElementById('pmcChart'), {
+  type: 'line',
+  data: {
+    labels: ['Apr 11','Apr 12','Apr 13','Apr 14','Apr 15','Apr 16','Apr 17','Apr 18','Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25'],
+    datasets: [
+      {
+        label: 'CTL (Fitness)',
+        data: [25.2,24.6,25.6,25.0,25.3,25.5,26.7,26.6,27.9,27.7,27.0,28.1,27.4,28.3,28.3],
+        borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)',
+        borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
+      },
+      {
+        label: 'ATL (Fatigue)',
+        data: [29.0,24.9,31.0,26.6,28.1,28.6,35.6,33.9,40.3,37.4,32.0,37.5,32.1,37.0,35.8],
+        borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)',
+        borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
+      },
+      {
+        label: 'TSB (Form)',
+        data: [-8.0,-3.8,-0.2,-5.4,-1.5,-2.8,-3.2,-8.9,-7.2,-12.4,-9.7,-5.0,-9.4,-4.7,-8.7],
+        borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.05)',
+        borderWidth: 2, pointRadius: 3, tension: 0.4, yAxisID: 'y2', fill: false,
+        borderDash: [5,3]
+      }
+    ]
+  },
+  options: {
+    ...chartDefaults,
+    scales: {
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'CTL / ATL', color: '#64748b', font: { size: 10 } } },
+      y2: { position: 'right', ticks: { color: '#eab308', font: { size: 10 } }, grid: { display: false }, title: { display: true, text: 'TSB', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+
+// 7-day trend chart
+new Chart(document.getElementById('trendChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25'],
+    datasets: [
+      {
+        label: 'Recovery %',
+        data: [97, 55, 36, 69, 61, 39, 68],
+        backgroundColor: ctx => {
+          const v = ctx.raw;
+          return v >= 67 ? 'rgba(34,197,94,0.7)' : v >= 34 ? 'rgba(234,179,8,0.7)' : 'rgba(239,68,68,0.7)';
+        },
+        borderRadius: 5, yAxisID: 'y'
+      },
+      {
+        label: 'Strain',
+        data: [15.7, 9.3, 2.4, 10.0, 4.0, 13.8, 6.2],
+        type: 'line',
+        borderColor: '#3b82f6', backgroundColor: 'transparent',
+        borderWidth: 2.5, pointRadius: 4, tension: 0.4, yAxisID: 'y2'
+      },
+      {
+        label: 'Sleep %',
+        data: [80, 81, 33, 75, 78, 75, 81],
+        type: 'line',
+        borderColor: '#a855f7', backgroundColor: 'transparent',
+        borderWidth: 2, pointRadius: 4, tension: 0.4, yAxisID: 'y', borderDash: [4,3]
+      }
+    ]
+  },
+  options: {
+    ...chartDefaults,
+    scales: {
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, max: 100, min: 0, title: { display: true, text: 'Score %', color: '#64748b', font: { size: 10 } } },
+      y2: { position: 'right', ticks: { color: '#3b82f6', font: { size: 10 } }, grid: { display: false }, max: 21, min: 0, title: { display: true, text: 'Strain', color: '#64748b', font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>
