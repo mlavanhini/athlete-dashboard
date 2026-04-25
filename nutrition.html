@@ -119,6 +119,13 @@
   .cal-bar-fill { height: 100%; border-radius: 3px; background: var(--orange); }
   .no-data { color: var(--muted); font-size: 12px; font-style: italic; }
 
+  .dtype-hard { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 6px; border-radius:4px; background:rgba(239,68,68,0.15); color:var(--red); }
+  .dtype-mod  { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 6px; border-radius:4px; background:rgba(234,179,8,0.15); color:var(--yellow); }
+  .dtype-easy { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 6px; border-radius:4px; background:rgba(34,197,94,0.15); color:var(--green); }
+  .var-ok   { color: var(--green); font-weight:700; font-size:12px; }
+  .var-warn { color: var(--yellow); font-weight:700; font-size:12px; }
+  .var-bad  { color: var(--red); font-weight:700; font-size:12px; }
+
   canvas { max-height: 220px; }
 
   @media (max-width: 900px) {
@@ -302,76 +309,152 @@
 <!-- WEEK TAB -->
 <div class="page" id="tab-week">
 
+  <!-- Plan summary banner -->
+  <div style="margin-bottom:16px;padding:14px 18px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.22);border-radius:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="font-size:13px;font-weight:700;color:var(--accent)">📋 Lower-Carb Meal Plan v5 · Apr 26–May 3</div>
+    <div style="font-size:12px;color:var(--muted);flex:1">Avg target <strong style="color:var(--text)">2,075 kcal/day</strong> · <strong style="color:var(--blue)">220g protein</strong> · <strong style="color:var(--yellow)">~120g carbs</strong> · <strong style="color:var(--red)">~80g fat</strong> · Heavier week — 4 HARD days, 1 EASY, 3 MODERATE</div>
+  </div>
+
   <div class="grid4" style="margin-bottom:16px">
     <div class="card">
-      <div class="card-label">Week Total Calories</div>
-      <div class="kpi-big" style="color:var(--orange)">620</div>
-      <div class="kpi-sub">kcal (1 day logged)</div>
+      <div class="card-label">Plan Target (8-day avg)</div>
+      <div class="kpi-big" style="color:var(--accent)">2,075</div>
+      <div class="kpi-sub">kcal/day planned</div>
     </div>
     <div class="card">
-      <div class="card-label">Avg Protein / day</div>
-      <div class="kpi-big" style="color:var(--blue)">76<span style="font-size:22px">g</span></div>
-      <div class="kpi-sub">logged days only</div>
+      <div class="card-label">Protein Target</div>
+      <div class="kpi-big" style="color:var(--blue)">220<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">daily · every day</div>
     </div>
     <div class="card">
-      <div class="card-label">Days Logged</div>
-      <div class="kpi-big" style="color:var(--teal)">1</div>
-      <div class="kpi-sub">of 7 this week</div>
+      <div class="card-label">Days Logged vs Planned</div>
+      <div class="kpi-big" style="color:var(--teal)">0<span style="font-size:22px;color:var(--muted)">/8</span></div>
+      <div class="kpi-sub">plan starts Apr 26</div>
     </div>
     <div class="card">
-      <div class="card-label">Avg Calories / day</div>
-      <div class="kpi-big" style="color:var(--muted)">—</div>
-      <div class="kpi-sub">log more days to track</div>
+      <div class="card-label">8-Day Total Target</div>
+      <div class="kpi-big" style="color:var(--orange)">16.8k</div>
+      <div class="kpi-sub">kcal across plan</div>
     </div>
   </div>
 
   <div class="grid2">
     <div class="card">
-      <div class="card-label">Daily Calories This Week</div>
+      <div class="card-label">Planned vs Actual Calories (Apr 26–May 3)</div>
       <canvas id="weekCalChart"></canvas>
+      <div style="display:flex;gap:14px;margin-top:10px;font-size:11px">
+        <span style="display:flex;align-items:center;gap:5px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(99,102,241,0.7);display:inline-block"></span>Planned</span>
+        <span style="display:flex;align-items:center;gap:5px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(249,115,22,0.7);display:inline-block"></span>Actual (logged)</span>
+      </div>
     </div>
     <div class="card">
-      <div class="card-label">Macros by Day</div>
+      <div class="card-label">Planned Macros by Day</div>
       <canvas id="weekMacroChart"></canvas>
     </div>
   </div>
 
+  <!-- Daily breakdown table -->
   <div class="card" style="margin-top:16px">
-    <div class="card-label">Daily Breakdown — Week of Apr 20</div>
-    <table class="week-table">
+    <div class="card-label">Daily Breakdown — Plan vs Actual (Apr 26–May 3)</div>
+    <div style="overflow-x:auto">
+    <table class="week-table" style="min-width:860px">
       <thead>
         <tr>
           <th>Day</th>
-          <th>Calories</th>
-          <th>Protein</th>
-          <th>Carbs</th>
-          <th>Fat</th>
-          <th>Water</th>
-          <th>Meals</th>
-          <th style="width:140px">Cal bar</th>
+          <th>Type</th>
+          <th>Training</th>
+          <th style="color:var(--accent)">Plan kcal</th>
+          <th style="color:var(--orange)">Actual kcal</th>
+          <th>±</th>
+          <th style="color:var(--blue)">Plan P</th>
+          <th style="color:var(--blue)">Act P</th>
+          <th style="color:var(--yellow)">Plan C</th>
+          <th style="color:var(--yellow)">Act C</th>
+          <th style="color:var(--red)">Plan F</th>
+          <th style="color:var(--red)">Act F</th>
+        </tr>
+      </thead>
+      <tbody id="plan-table-body"></tbody>
+    </table>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--muted);padding:10px;background:rgba(99,102,241,0.06);border-radius:8px;border:1px solid rgba(99,102,241,0.15)">
+      💡 Actual columns fill in as you log meals via Claude. Green ± = within 100 kcal of target, yellow = over/under 100–300, red = off by 300+.
+    </div>
+  </div>
+
+  <!-- Meal plan quick-ref -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-label">Meal Plan Quick Reference (v5)</div>
+    <div style="overflow-x:auto">
+    <table class="week-table" style="min-width:700px">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Breakfast</th>
+          <th>Lunch</th>
+          <th>Dinner</th>
+          <th>Snacks</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Sun Apr 20</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
-        <tr><td>Mon Apr 21</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
-        <tr><td>Tue Apr 22</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
-        <tr><td>Wed Apr 23</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
-        <tr><td>Thu Apr 24</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
-        <tr class="today-row">
-          <td><strong>Fri Apr 25 ← Today</strong></td>
-          <td style="color:var(--orange);font-weight:700">620</td>
-          <td style="color:var(--blue);font-weight:700">76g</td>
-          <td style="color:var(--yellow);font-weight:700">31g</td>
-          <td style="color:var(--red);font-weight:700">21g</td>
-          <td style="color:var(--red)">0 ml</td>
-          <td>2</td>
-          <td><div class="cal-bar"><div class="cal-bar-fill" style="width:62%"></div></div></td>
+        <tr>
+          <td><strong>Sun 4/26</strong><br><span class="dtype-hard">HARD</span></td>
+          <td style="font-size:11px">🍌 Pre-run: banana + whey · gel @ 45min<br>🍳 Post: 4 eggs + rice + black beans</td>
+          <td style="font-size:11px">🥩 Beef bowl + rice + beans</td>
+          <td style="font-size:11px">🍗 Chicken bowl + rice + ½ avocado</td>
+          <td style="font-size:11px">200g yogurt + 10g walnuts</td>
         </tr>
-        <tr><td>Sat Apr 26</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+        <tr>
+          <td><strong>Mon 4/27</strong><br><span class="dtype-hard">HARD</span></td>
+          <td style="font-size:11px">🥣 40g oats + whey + ricotta</td>
+          <td style="font-size:11px">🥩 Beef bowl + sweet potato + lentils</td>
+          <td style="font-size:11px">🍗 Chicken bowl + 50g quinoa</td>
+          <td style="font-size:11px">Pre-run: banana + whey · Post-lift: whey + 30g rice</td>
+        </tr>
+        <tr>
+          <td><strong>Tue 4/28</strong><br><span class="dtype-easy">EASY</span></td>
+          <td style="font-size:11px">🧀 3 eggs + 150g ricotta + coffee</td>
+          <td style="font-size:11px">🥩 Beef bowl (no carb)</td>
+          <td style="font-size:11px">🍗 Chicken bowl (no carb)</td>
+          <td style="font-size:11px">Pre-ride: 1 scoop whey · Eve: 200g yogurt + cinnamon</td>
+        </tr>
+        <tr>
+          <td><strong>Wed 4/29</strong><br><span class="dtype-mod">MOD</span></td>
+          <td style="font-size:11px">🥛 3 eggs + 200g yogurt + chia · pre-run: whey + banana</td>
+          <td style="font-size:11px">🥩 Beef bowl + 80g sweet potato</td>
+          <td style="font-size:11px">🍗 Chicken bowl + 50g quinoa</td>
+          <td style="font-size:11px">2 boiled eggs + 20g almonds</td>
+        </tr>
+        <tr>
+          <td><strong>Thu 4/30</strong><br><span class="dtype-hard">HARD</span></td>
+          <td style="font-size:11px">🥣 40g oats + whey + ricotta</td>
+          <td style="font-size:11px">🥩 Beef bowl + sweet potato + lentils</td>
+          <td style="font-size:11px">🍗 Chicken bowl + 80g rice + ½ avocado</td>
+          <td style="font-size:11px">Pre-bike: whey + banana · Post-lift: whey + 30g rice</td>
+        </tr>
+        <tr>
+          <td><strong>Fri 5/1</strong><br><span class="dtype-mod">MOD</span></td>
+          <td style="font-size:11px">🥛 3 eggs + 200g yogurt + chia · pre-run: whey + banana</td>
+          <td style="font-size:11px">🥩 Beef bowl + 80g sweet potato</td>
+          <td style="font-size:11px">🍗 Chicken bowl + 50g quinoa</td>
+          <td style="font-size:11px">2 boiled eggs + 20g almonds</td>
+        </tr>
+        <tr>
+          <td><strong>Sat 5/2</strong><br><span class="dtype-hard">HARD</span></td>
+          <td style="font-size:11px">🍌 Pre-run: banana + whey · gel @ 45min<br>🍳 Post: 4 eggs + rice + black beans</td>
+          <td style="font-size:11px">🥩 Beef bowl + rice + beans</td>
+          <td style="font-size:11px">🍗 Chicken bowl + rice + ½ avocado</td>
+          <td style="font-size:11px">200g yogurt + 10g walnuts</td>
+        </tr>
+        <tr>
+          <td><strong>Sun 5/3</strong><br><span class="dtype-mod">MOD</span></td>
+          <td style="font-size:11px">🥣 40g oats + whey + ricotta</td>
+          <td style="font-size:11px">🥩 Beef bowl + 80g sweet potato</td>
+          <td style="font-size:11px">🥩 Picanha 250g + veg + sweet potato</td>
+          <td style="font-size:11px">Pre-lift: 150g yogurt + apple · Post-lift: whey + 40g rice</td>
+        </tr>
       </tbody>
     </table>
-    <div style="margin-top:12px;font-size:12px;color:var(--muted);padding:10px;background:rgba(99,102,241,0.06);border-radius:8px;border:1px solid rgba(99,102,241,0.15)">
-      💡 Only April 25 has meals logged. Start logging daily to unlock weekly averages and trends.
     </div>
   </div>
 </div>
@@ -398,37 +481,65 @@ new Chart(document.getElementById('macroDonut'), {
   }
 });
 
-// Weekly calories chart
+// ── Meal plan data from PDF v5 ──────────────────────────────────────────────
+const PLAN = [
+  { date:'Apr 26', label:'Sun 4/26', type:'HARD', training:'Long Run 76min',              kcal:2250, p:215, c:160, f:90  },
+  { date:'Apr 27', label:'Mon 4/27', type:'HARD', training:'Run+Strides + Upper Body',    kcal:2200, p:225, c:145, f:85  },
+  { date:'Apr 28', label:'Tue 4/28', type:'EASY', training:'Z1 Bike 60min',               kcal:1790, p:183, c:41,  f:94  },
+  { date:'Apr 29', label:'Wed 4/29', type:'MOD',  training:'Tempo Run 44min',             kcal:2030, p:194, c:88,  f:92  },
+  { date:'Apr 30', label:'Thu 4/30', type:'HARD', training:'Mixed Z3/Z4 + Upper Body',   kcal:2210, p:225, c:145, f:85  },
+  { date:'May 1',  label:'Fri 5/1',  type:'MOD',  training:'Run/Walk 54min',              kcal:2030, p:194, c:88,  f:92  },
+  { date:'May 2',  label:'Sat 5/2',  type:'HARD', training:'Long Run 76min',              kcal:2240, p:215, c:160, f:90  },
+  { date:'May 3',  label:'Sun 5/3',  type:'MOD',  training:'Lower Body Strength 15 sets', kcal:2050, p:210, c:100, f:88  },
+];
+// Actual logged data — keyed by date label, filled as meals are logged
+const ACTUAL = {
+  // 'Apr 26': { kcal: null, p: null, c: null, f: null },
+};
+
+const labels = PLAN.map(d => d.date);
+const plannedKcal = PLAN.map(d => d.kcal);
+const actualKcal  = PLAN.map(d => ACTUAL[d.date]?.kcal ?? null);
+
+// Planned vs Actual calories chart
 new Chart(document.getElementById('weekCalChart'), {
   type: 'bar',
   data: {
-    labels: ['Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26'],
-    datasets: [{
-      label: 'Calories',
-      data: [null, null, null, null, null, 620, null],
-      backgroundColor: ctx => ctx.dataIndex === 5 ? 'rgba(249,115,22,0.7)' : 'rgba(249,115,22,0.15)',
-      borderRadius: 6
-    }]
+    labels,
+    datasets: [
+      {
+        label: 'Planned', data: plannedKcal,
+        backgroundColor: 'rgba(99,102,241,0.45)', borderColor: 'rgba(99,102,241,0.8)',
+        borderWidth: 1, borderRadius: 5
+      },
+      {
+        label: 'Actual', data: actualKcal,
+        backgroundColor: 'rgba(249,115,22,0.7)', borderColor: 'rgba(249,115,22,1)',
+        borderWidth: 1, borderRadius: 5
+      }
+    ]
   },
   options: {
     responsive: true, maintainAspectRatio: true,
-    plugins: { legend: { display: false } },
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.raw ?? 'not logged'} kcal` } }
+    },
     scales: {
       x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMax: 2500 }
+      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMax: 2500, min: 0 }
     }
   }
 });
 
-// Weekly macro stacked chart
+// Planned macros stacked by day
 new Chart(document.getElementById('weekMacroChart'), {
   type: 'bar',
   data: {
-    labels: ['Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26'],
+    labels,
     datasets: [
-      { label: 'Protein', data: [0,0,0,0,0,76,0], backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 0 },
-      { label: 'Carbs',   data: [0,0,0,0,0,31,0], backgroundColor: 'rgba(234,179,8,0.75)',  borderRadius: 0 },
-      { label: 'Fat',     data: [0,0,0,0,0,21,0], backgroundColor: 'rgba(239,68,68,0.75)',  borderRadius: 6 },
+      { label: 'Protein', data: PLAN.map(d => d.p), backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 0 },
+      { label: 'Carbs',   data: PLAN.map(d => d.c), backgroundColor: 'rgba(234,179,8,0.75)',  borderRadius: 0 },
+      { label: 'Fat',     data: PLAN.map(d => d.f), backgroundColor: 'rgba(239,68,68,0.75)',  borderRadius: 4 },
     ]
   },
   options: {
@@ -436,9 +547,40 @@ new Chart(document.getElementById('weekMacroChart'), {
     plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12, padding: 12 } } },
     scales: {
       x: { stacked: true, ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-      y: { stacked: true, ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      y: { stacked: true, ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMax: 500 }
     }
   }
+});
+
+// Build plan vs actual table
+const tbody = document.getElementById('plan-table-body');
+PLAN.forEach(d => {
+  const act = ACTUAL[d.date];
+  const typeClass = d.type === 'HARD' ? 'dtype-hard' : d.type === 'EASY' ? 'dtype-easy' : 'dtype-mod';
+  const variance = act?.kcal != null ? act.kcal - d.kcal : null;
+  let varHtml = '<span class="no-data">—</span>';
+  if (variance !== null) {
+    const abs = Math.abs(variance);
+    const cls = abs <= 100 ? 'var-ok' : abs <= 300 ? 'var-warn' : 'var-bad';
+    varHtml = `<span class="${cls}">${variance > 0 ? '+' : ''}${variance}</span>`;
+  }
+  const actVal = v => v != null ? `<span style="font-weight:600;color:var(--orange)">${v}</span>` : '<span class="no-data">—</span>';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong>${d.label}</strong></td>
+    <td><span class="${typeClass}">${d.type}</span></td>
+    <td style="font-size:11px;color:var(--muted);max-width:140px">${d.training}</td>
+    <td style="color:var(--accent);font-weight:700">${d.kcal}</td>
+    <td>${actVal(act?.kcal)}</td>
+    <td>${varHtml}</td>
+    <td style="color:var(--blue)">${d.p}g</td>
+    <td>${actVal(act?.p != null ? act.p+'g' : null)}</td>
+    <td style="color:var(--yellow)">${d.c}g</td>
+    <td>${actVal(act?.c != null ? act.c+'g' : null)}</td>
+    <td style="color:var(--red)">${d.f}g</td>
+    <td>${actVal(act?.f != null ? act.f+'g' : null)}</td>
+  `;
+  tbody.appendChild(tr);
 });
 
 // Water tracker
