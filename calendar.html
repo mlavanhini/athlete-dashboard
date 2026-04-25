@@ -124,7 +124,7 @@
 <div class="summary-bar">
   <div class="sum-pill">🏃 <div><strong style="color:var(--green)">10</strong> <span style="color:var(--muted);font-size:11px">runs</span></div></div>
   <div class="sum-pill">🚴 <div><strong style="color:var(--blue)">5</strong> <span style="color:var(--muted);font-size:11px">bike</span></div></div>
-  <div class="sum-pill">💪 <div><strong style="color:var(--purple)">4</strong> <span style="color:var(--muted);font-size:11px">strength</span></div></div>
+  <div class="sum-pill">💪 <div><strong style="color:var(--purple)">7</strong> <span style="color:var(--muted);font-size:11px">strength</span></div></div>
   <div class="sum-pill">📈 <div><strong style="color:var(--orange)">730</strong> <span style="color:var(--muted);font-size:11px">TSS (Apr)</span></div></div>
   <div class="sum-pill">⏱ <div><strong style="color:var(--teal)">18.4h</strong> <span style="color:var(--muted);font-size:11px">total (Apr)</span></div></div>
   <div class="sum-pill">📅 <div><strong style="color:var(--accent)">7</strong> <span style="color:var(--muted);font-size:11px">planned ahead</span></div></div>
@@ -210,6 +210,8 @@ const WORKOUTS = {
   '2026-04-27': [
     { name:'Rodagem + Strides', type:'planned', sport:'run', tss:40, dist:null, dur:38, source:'TP',
       desc:'Rodagem com estímulos (Strides) ao final. Acumulação de volume com trabalho de eficiência neuromuscular e economia de movimento.' },
+    { name:'Upper Body · 33 sets', type:'planned', sport:'strength', tss:null, dist:null, dur:null, source:'COROS',
+      desc:'Chest press · Shoulder press · Back ext · Cable row · Pec deck · Side plank · Biceps · Triceps · Trunk rotations · Crunch. 33 sets total.' },
   ],
   '2026-04-28': [
     { name:'Giro Regenerativo', type:'planned', sport:'bike', tss:40, dist:null, dur:60, source:'TP',
@@ -222,6 +224,8 @@ const WORKOUTS = {
   '2026-04-30': [
     { name:'Intervalado Misto Z3/Z4', type:'planned', sport:'bike', tss:53, dist:null, dur:56, source:'TP',
       desc:'Aumentar produção de lactato acima do LT2 e trabalhar sua remoção abaixo do LT2. Treino difícil.' },
+    { name:'Upper Body · 33 sets', type:'planned', sport:'strength', tss:null, dist:null, dur:null, source:'COROS',
+      desc:'Chest press · Shoulder press · Back ext · Cable row · Pec deck · Side plank · Biceps · Triceps · Trunk rotations · Crunch. 33 sets total.' },
   ],
   '2026-05-01': [
     { name:'Rodagem Corrida/Caminhada', type:'planned', sport:'run', tss:58, dist:null, dur:54, source:'TP',
@@ -232,7 +236,9 @@ const WORKOUTS = {
       desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
   ],
   '2026-05-03': [
-    { name:'DESCANSO', type:'rest', sport:'rest', tss:null, dist:null, dur:null, source:'TP', desc:'Rest day.' },
+    { name:'DESCANSO', type:'rest', sport:'rest', tss:null, dist:null, dur:null, source:'TP', desc:'Rest day — no cardio planned.' },
+    { name:'Lower Body · 15 sets', type:'planned', sport:'strength', tss:null, dist:null, dur:null, source:'COROS',
+      desc:'Box squat 3×8 · DB lunges 3×6 · Step-ups 3×6 · Calf raises 3×8 · RDL 3×6. 15 sets total.' },
   ],
 };
 
