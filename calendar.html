@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcelo · Calendar</title>
+<style>
+  :root {
+    --bg: #0d0f14; --card: #161a23; --border: #252b38;
+    --text: #e2e8f0; --muted: #64748b;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --blue: #3b82f6; --purple: #a855f7; --orange: #f97316;
+    --teal: #14b8a6; --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+  .nav { display:flex; gap:4px; padding: 12px 28px; background: #0d0f14; border-bottom: 1px solid var(--border); }
+  .nav a { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+  .nav a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav a.active { color: var(--text); background: rgba(255,255,255,0.08); }
+
+  header { display:flex; align-items:center; justify-content:space-between; padding: 20px 28px; border-bottom: 1px solid var(--border); }
+  header .title { font-size: 18px; font-weight: 700; }
+  header .subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .summary-bar {
+    display: flex; gap: 12px; padding: 16px 28px;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .sum-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 14px; font-size: 13px;
+  }
+  .sum-pill strong { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+
+  .cal-wrap { display: flex; gap: 0; height: calc(100vh - 200px); }
+
+  /* Calendar grid */
+  .cal-main { flex: 1; overflow-y: auto; padding: 20px 28px; }
+  .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .month-nav h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  .month-nav button {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: 13px;
+  }
+  .month-nav button:hover { background: rgba(255,255,255,0.08); }
+
+  .legend { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; padding: 8px 0; }
+  .cal-day {
+    min-height: 110px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px; cursor: pointer; transition: border-color 0.15s;
+    position: relative;
+  }
+  .cal-day:hover { border-color: rgba(99,102,241,0.4); }
+  .cal-day.today { border-color: var(--accent); background: rgba(99,102,241,0.06); }
+  .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+  .cal-day.other-month { opacity: 0.35; }
+  .day-num {
+    font-size: 13px; font-weight: 600; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .today-badge {
+    font-size: 9px; font-weight: 700; background: var(--accent);
+    color: #fff; border-radius: 4px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .workout-pills { display: flex; flex-direction: column; gap: 3px; }
+  .pill {
+    font-size: 10px; font-weight: 600; border-radius: 4px;
+    padding: 3px 6px; line-height: 1.4; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: opacity 0.1s;
+  }
+  .pill:hover { opacity: 0.8; }
+  .pill.completed { background: rgba(34,197,94,0.18); color: #4ade80; border-left: 2px solid var(--green); }
+  .pill.planned   { background: rgba(99,102,241,0.18); color: #818cf8; border-left: 2px solid var(--accent); }
+  .pill.rest      { background: rgba(100,116,139,0.18); color: var(--muted); border-left: 2px solid var(--muted); }
+  .pill.coros-only { background: rgba(20,184,166,0.18); color: #2dd4bf; border-left: 2px solid var(--teal); }
+
+  /* Sidebar */
+  .cal-sidebar {
+    width: 320px; border-left: 1px solid var(--border);
+    background: var(--card); overflow-y: auto; flex-shrink: 0;
+  }
+  .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h3 { font-size: 15px; font-weight: 700; }
+  .sidebar-header p { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .sidebar-empty { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px; }
+  .workout-detail { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .wd-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+  .wd-name { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .wd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .wd-stat { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px 10px; }
+  .wd-stat-val { font-size: 16px; font-weight: 700; }
+  .wd-stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .wd-desc { font-size: 12px; color: var(--muted); line-height: 1.6; max-height: 80px; overflow: hidden; position: relative; }
+  .wd-desc::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 20px; background: linear-gradient(transparent, var(--card)); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+  .status-badge.completed { background: rgba(34,197,94,0.15); color: var(--green); }
+  .status-badge.planned   { background: rgba(99,102,241,0.15); color: #818cf8; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">📊 Dashboard</a>
+  <a href="calendar.html" class="active">📅 Calendar</a>
+  <a href="nutrition.html">🥗 Nutrition</a>
+</nav>
+
+<header>
+  <div>
+    <div class="title">Training Calendar</div>
+    <div class="subtitle">TrainingPeaks + COROS · April – May 2026</div>
+  </div>
+</header>
+
+<div class="summary-bar">
+  <div class="sum-pill">🏃 <div><strong style="color:var(--green)">10</strong> <span style="color:var(--muted);font-size:11px">runs</span></div></div>
+  <div class="sum-pill">🚴 <div><strong style="color:var(--blue)">5</strong> <span style="color:var(--muted);font-size:11px">bike</span></div></div>
+  <div class="sum-pill">💪 <div><strong style="color:var(--purple)">4</strong> <span style="color:var(--muted);font-size:11px">strength</span></div></div>
+  <div class="sum-pill">📈 <div><strong style="color:var(--orange)">730</strong> <span style="color:var(--muted);font-size:11px">TSS (Apr)</span></div></div>
+  <div class="sum-pill">⏱ <div><strong style="color:var(--teal)">18.4h</strong> <span style="color:var(--muted);font-size:11px">total (Apr)</span></div></div>
+  <div class="sum-pill">📅 <div><strong style="color:var(--accent)">7</strong> <span style="color:var(--muted);font-size:11px">planned ahead</span></div></div>
+</div>
+
+<div class="cal-wrap">
+  <div class="cal-main">
+    <div class="month-nav">
+      <button onclick="prevMonth()">← Prev</button>
+      <h2 id="month-title">April 2026</h2>
+      <button onclick="nextMonth()">Next →</button>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(34,197,94,0.6)"></div>Completed (TP)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(99,102,241,0.6)"></div>Planned (TP)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(20,184,166,0.4)"></div>COROS only</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(100,116,139,0.4)"></div>Rest day</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <div class="cal-sidebar" id="sidebar">
+    <div class="sidebar-empty">
+      <div style="font-size:32px;margin-bottom:8px">📅</div>
+      Click a workout to see details
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKOUTS = {
+  '2026-04-13': [
+    { name:'Rodagem Corrida/Caminhada', type:'completed', sport:'run', tss:43, dist:7.1, dur:55, source:'TP',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do Limiar Aeróbio (LT1).' },
+    { name:'Easy Run', type:'completed', sport:'run', tss:25, dist:3.1, dur:23, source:'TP', desc:'' },
+  ],
+  '2026-04-15': [
+    { name:'Intervalado Vo2', type:'completed', sport:'run', tss:37, dist:5.2, dur:44, source:'TP',
+      desc:'Intervalados de Vo2Max trabalham a capacidade aeróbia máxima e a capacidade de captar e transportar oxigênio para os músculos.' },
+  ],
+  '2026-04-16': [
+    { name:'Aerobic Boosting Intervals', type:'completed', sport:'bike', tss:5, dist:8.7, dur:21, source:'TP',
+      desc:'Hill anaerobic-endurance intervals. 5×3 min to HR zone 5b on a 6-8% hill. 3-min recoveries.' },
+    { name:'Strength', type:'completed', sport:'strength', tss:25, dist:null, dur:40, source:'TP', desc:'' },
+    { name:'Zwift – Pacer Ride', type:'completed', sport:'bike', tss:2, dist:4.5, dur:10, source:'TP', desc:'' },
+  ],
+  '2026-04-17': [
+    { name:'Rodagem Corrida/Caminhada', type:'completed', sport:'run', tss:28, dist:4.6, dur:44, source:'TP',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+    { name:'Soccer', type:'completed', sport:'soccer', tss:49, dist:1.1, dur:69, source:'TP', desc:'' },
+  ],
+  '2026-04-18': [
+    { name:'Zwift – London Flat', type:'completed', sport:'bike', tss:7, dist:13.2, dur:45, source:'TP', desc:'' },
+    { name:'Strength', type:'completed', sport:'strength', tss:16, dist:null, dur:25, source:'TP', desc:'' },
+  ],
+  '2026-04-19': [
+    { name:'Rodagem Corrida/Caminhada', type:'completed', sport:'run', tss:79, dist:10.0, dur:78, source:'TP+COROS',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+  ],
+  '2026-04-20': [
+    { name:'Rodagem Corrida/Caminhada', type:'completed', sport:'run', tss:20, dist:2.9, dur:26, source:'TP+COROS',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+  ],
+  '2026-04-22': [
+    { name:'Intervalado Vo2', type:'completed', sport:'run', tss:30, dist:4.5, dur:41, source:'TP+COROS',
+      desc:'Intervalados de Vo2Max trabalham a capacidade aeróbia máxima.' },
+    { name:'Intervalado Misto Z3/Z4', type:'completed', sport:'bike', tss:40, dist:20.8, dur:48, source:'TP+COROS',
+      desc:'Aumentar produção de lactato acima do LT2 e trabalhar sua remoção nos intervalos abaixo do LT2. Treino difícil, não subestime.' },
+  ],
+  '2026-04-24': [
+    { name:'Rodagem Corrida/Caminhada', type:'completed', sport:'run', tss:50, dist:6.4, dur:51, source:'TP+COROS',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+    { name:'Upper Body Strength', type:'completed', sport:'strength', tss:16, dist:null, dur:24, source:'TP+COROS', desc:'18 sets upper body.' },
+  ],
+  '2026-04-25': [
+    { name:'Giro Regenerativo', type:'completed', sport:'bike', tss:29, dist:12.6, dur:33, source:'TP+COROS',
+      desc:'Treino regenerativo para manter o corpo em movimento, metabolismo estável e aumentar circulação de oxigênio para os músculos.' },
+  ],
+  '2026-04-26': [
+    { name:'Rodagem Corrida/Caminhada', type:'planned', sport:'run', tss:87, dist:null, dur:76, source:'TP+COROS',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+  ],
+  '2026-04-27': [
+    { name:'Rodagem + Strides', type:'planned', sport:'run', tss:40, dist:null, dur:38, source:'TP',
+      desc:'Rodagem com estímulos (Strides) ao final. Acumulação de volume com trabalho de eficiência neuromuscular e economia de movimento.' },
+  ],
+  '2026-04-28': [
+    { name:'Giro Regenerativo', type:'planned', sport:'bike', tss:40, dist:null, dur:60, source:'TP',
+      desc:'Treino regenerativo para manter o corpo em movimento e aumentar a circulação de oxigênio para os músculos.' },
+  ],
+  '2026-04-29': [
+    { name:'Tempo Run', type:'planned', sport:'run', tss:55, dist:null, dur:44, source:'TP',
+      desc:'Treinos em Tempo, intensidades acima do LT1 e abaixo do LT2. Melhora resistência muscular, economia de movimento e eleva os limiares.' },
+  ],
+  '2026-04-30': [
+    { name:'Intervalado Misto Z3/Z4', type:'planned', sport:'bike', tss:53, dist:null, dur:56, source:'TP',
+      desc:'Aumentar produção de lactato acima do LT2 e trabalhar sua remoção abaixo do LT2. Treino difícil.' },
+  ],
+  '2026-05-01': [
+    { name:'Rodagem Corrida/Caminhada', type:'planned', sport:'run', tss:58, dist:null, dur:54, source:'TP',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+  ],
+  '2026-05-02': [
+    { name:'Rodagem Corrida/Caminhada', type:'planned', sport:'run', tss:87, dist:null, dur:76, source:'TP',
+      desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
+  ],
+  '2026-05-03': [
+    { name:'DESCANSO', type:'rest', sport:'rest', tss:null, dist:null, dur:null, source:'TP', desc:'Rest day.' },
+  ],
+};
+
+const SPORT_ICONS = { run:'🏃', bike:'🚴', strength:'💪', soccer:'⚽', rest:'😴' };
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let viewYear = 2026, viewMonth = 3; // 0-indexed, April = 3
+const TODAY = '2026-04-25';
+
+function pad(n) { return String(n).padStart(2,'0'); }
+function dateKey(y,m,d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  document.getElementById('month-title').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+  grid.innerHTML = '';
+
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow'; el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const first = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const daysInPrev = new Date(viewYear, viewMonth, 0).getDate();
+
+  // prev month fillers
+  for (let i = 0; i < first; i++) {
+    const d = daysInPrev - first + 1 + i;
+    const key = dateKey(viewMonth === 0 ? viewYear-1 : viewYear, viewMonth === 0 ? 11 : viewMonth-1, d);
+    addDayCell(grid, d, key, true);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(viewYear, viewMonth, d);
+    addDayCell(grid, d, key, false);
+  }
+
+  // next month fillers
+  const total = first + daysInMonth;
+  const remainder = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remainder; d++) {
+    const key = dateKey(viewMonth === 11 ? viewYear+1 : viewYear, viewMonth === 11 ? 0 : viewMonth+1, d);
+    addDayCell(grid, d, key, true);
+  }
+}
+
+function addDayCell(grid, dayNum, key, otherMonth) {
+  const cell = document.createElement('div');
+  cell.className = 'cal-day' + (otherMonth ? ' other-month' : '') + (key === TODAY ? ' today' : '');
+
+  const numEl = document.createElement('div');
+  numEl.className = 'day-num';
+  numEl.innerHTML = dayNum + (key === TODAY ? ' <span class="today-badge">Today</span>' : '');
+  cell.appendChild(numEl);
+
+  const wos = WORKOUTS[key] || [];
+  if (wos.length) {
+    const pillsEl = document.createElement('div');
+    pillsEl.className = 'workout-pills';
+    wos.forEach(w => {
+      const p = document.createElement('div');
+      p.className = 'pill ' + w.type;
+      p.textContent = (SPORT_ICONS[w.sport] || '🏋️') + ' ' + w.name;
+      p.title = w.name;
+      p.onclick = (e) => { e.stopPropagation(); showSidebar(key, wos); };
+      pillsEl.appendChild(p);
+    });
+    cell.appendChild(pillsEl);
+    cell.onclick = () => showSidebar(key, wos);
+  }
+
+  grid.appendChild(cell);
+}
+
+function showSidebar(dateKey, workouts) {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  const dateStr = new Date(y, m-1, d).toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  const sidebar = document.getElementById('sidebar');
+
+  let html = `<div class="sidebar-header"><h3>${dateStr}</h3><p>${workouts.length} workout${workouts.length>1?'s':''}</p></div>`;
+  workouts.forEach(w => {
+    const icon = SPORT_ICONS[w.sport] || '🏋️';
+    const statusClass = w.type === 'rest' ? 'planned' : w.type;
+    html += `<div class="workout-detail">
+      <div class="wd-source" style="color:var(--teal)">${w.source}</div>
+      <div class="status-badge ${statusClass}">${w.type === 'completed' ? '✓ Completed' : w.type === 'planned' ? '📅 Planned' : '😴 Rest'}</div>
+      <div class="wd-name">${icon} ${w.name}</div>
+      <div class="wd-stats">
+        <div class="wd-stat"><div class="wd-stat-val" style="color:var(--blue)">${w.tss ?? '—'}</div><div class="wd-stat-lbl">TSS</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" style="color:var(--green)">${w.dist ? w.dist+'km' : '—'}</div><div class="wd-stat-lbl">Distance</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" style="color:var(--orange)">${w.dur ? w.dur+'m' : '—'}</div><div class="wd-stat-lbl">Duration</div></div>
+        <div class="wd-stat"><div class="wd-stat-val" style="color:var(--purple)">${SPORT_ICONS[w.sport]}</div><div class="wd-stat-lbl">${w.sport}</div></div>
+      </div>
+      ${w.desc ? `<div class="wd-desc">${w.desc}</div>` : ''}
+    </div>`;
+  });
+
+  sidebar.innerHTML = html;
+}
+
+function prevMonth() {
+  if (viewMonth === 0) { viewMonth = 11; viewYear--; } else viewMonth--;
+  renderCalendar();
+}
+function nextMonth() {
+  if (viewMonth === 11) { viewMonth = 0; viewYear++; } else viewMonth++;
+  renderCalendar();
+}
+
+renderCalendar();
+
+// Auto-open today
+if (WORKOUTS[TODAY]) showSidebar(TODAY, WORKOUTS[TODAY]);
+</script>
+</body>
+</html>

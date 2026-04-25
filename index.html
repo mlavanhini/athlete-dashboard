@@ -6,6 +6,12 @@
 <title>Marcelo · Athlete Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+  .nav { display:flex; gap:4px; padding: 12px 28px; background: #0d0f14; border-bottom: 1px solid #252b38; }
+  .nav a { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; color: #64748b; transition: all 0.15s; }
+  .nav a:hover { color: #e2e8f0; background: rgba(255,255,255,0.06); }
+  .nav a.active { color: #e2e8f0; background: rgba(255,255,255,0.08); }
+</style>
+<style>
   :root {
     --bg: #0d0f14;
     --card: #161a23;
@@ -139,6 +145,11 @@
 </head>
 <body>
 
+<nav class="nav">
+  <a href="index.html" class="active">📊 Dashboard</a>
+  <a href="calendar.html">📅 Calendar</a>
+  <a href="nutrition.html">🥗 Nutrition</a>
+</nav>
 <header>
   <div>
     <div class="title">Marcelo Lavanhini</div>

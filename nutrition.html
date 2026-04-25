@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcelo · Nutrition</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0f14; --card: #161a23; --border: #252b38;
+    --text: #e2e8f0; --muted: #64748b;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --blue: #3b82f6; --purple: #a855f7; --orange: #f97316;
+    --teal: #14b8a6; --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+  .nav { display:flex; gap:4px; padding: 12px 28px; background: #0d0f14; border-bottom: 1px solid var(--border); }
+  .nav a { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+  .nav a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav a.active { color: var(--text); background: rgba(255,255,255,0.08); }
+
+  header { display:flex; align-items:center; justify-content:space-between; padding: 20px 28px; border-bottom: 1px solid var(--border); }
+  header .title { font-size: 18px; font-weight: 700; }
+  header .subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* Tabs */
+  .tabs { display:flex; gap:4px; padding: 16px 28px 0; border-bottom: 1px solid var(--border); }
+  .tab { padding: 8px 20px; border-radius: 8px 8px 0 0; font-size: 13px; font-weight: 600; cursor: pointer;
+         color: var(--muted); border: 1px solid transparent; border-bottom: none; transition: all 0.15s; margin-bottom: -1px; }
+  .tab.active { color: var(--text); background: var(--card); border-color: var(--border); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .page { display: none; padding: 24px 28px; }
+  .page.active { display: block; }
+
+  /* Cards */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+
+  /* KPI */
+  .kpi-big { font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -2px; }
+  .kpi-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Macro bar */
+  .macro-row { margin-bottom: 12px; }
+  .macro-top { display:flex; justify-content:space-between; font-size: 12px; margin-bottom: 5px; }
+  .macro-lbl { font-weight: 600; }
+  .macro-val { color: var(--muted); }
+  .bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+
+  /* Meal cards */
+  .meal-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+  .meal-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 10px; }
+  .meal-type-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+                     padding: 3px 8px; border-radius: 6px; }
+  .badge-breakfast { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .badge-lunch     { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-dinner    { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .badge-snack     { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .meal-time { font-size: 11px; color: var(--muted); }
+  .meal-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+  .meal-macros { display:flex; gap: 10px; flex-wrap: wrap; }
+  .m-chip { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+  .m-cal  { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .m-pro  { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .m-carb { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .m-fat  { background: rgba(239,68,68,0.15); color: var(--red); }
+  .meal-notes { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+  /* Log meal form */
+  .log-section { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-top: 16px; }
+  .log-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .log-section p { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+  .log-form { display: flex; flex-direction: column; gap: 10px; }
+  .log-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group select, .form-group textarea {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 12px; color: var(--text); font-size: 13px;
+    outline: none; transition: border-color 0.15s; font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group select option { background: #1e2330; }
+  .btn-log {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: opacity 0.15s; align-self: flex-start;
+  }
+  .btn-log:hover { opacity: 0.85; }
+  .claude-note { font-size: 11px; color: var(--muted); margin-top: 8px; padding: 8px 12px;
+                 background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+                 border-radius: 8px; line-height: 1.5; }
+
+  /* Water */
+  .water-card { background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2); }
+  .water-drops { display:flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .drop { font-size: 22px; opacity: 0.25; cursor: pointer; transition: opacity 0.15s; }
+  .drop.filled { opacity: 1; }
+  .drop:hover { opacity: 0.7; }
+  .water-count { font-size: 28px; font-weight: 800; color: var(--blue); letter-spacing: -1px; margin-top: 8px; }
+  .water-goal { font-size: 12px; color: var(--muted); }
+
+  /* Weekly table */
+  .week-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .week-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+                   color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  .week-table td { padding: 10px 10px; border-bottom: 1px solid rgba(37,43,56,0.5); vertical-align: middle; }
+  .week-table tr:last-child td { border-bottom: none; }
+  .week-table tr.today-row td { background: rgba(99,102,241,0.06); }
+  .week-table tr.today-row td:first-child { border-left: 2px solid var(--accent); }
+  .cal-bar { height: 6px; border-radius: 3px; background: rgba(249,115,22,0.15); }
+  .cal-bar-fill { height: 100%; border-radius: 3px; background: var(--orange); }
+  .no-data { color: var(--muted); font-size: 12px; font-style: italic; }
+
+  canvas { max-height: 220px; }
+
+  @media (max-width: 900px) {
+    .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+    .log-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">📊 Dashboard</a>
+  <a href="calendar.html">📅 Calendar</a>
+  <a href="nutrition.html" class="active">🥗 Nutrition</a>
+</nav>
+
+<header>
+  <div>
+    <div class="title">Nutrition Tracker</div>
+    <div class="subtitle">April 25, 2026 · 2 meals logged</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('today')">Today</div>
+  <div class="tab" onclick="switchTab('week')">This Week</div>
+</div>
+
+<!-- TODAY TAB -->
+<div class="page active" id="tab-today">
+
+  <div class="grid4">
+    <div class="card">
+      <div class="card-label">Calories</div>
+      <div class="kpi-big" style="color:var(--orange)">620</div>
+      <div class="kpi-sub">kcal today</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Protein</div>
+      <div class="kpi-big" style="color:var(--blue)">76<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">49% of calories</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Carbs</div>
+      <div class="kpi-big" style="color:var(--yellow)">31<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">20% of calories</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Fat</div>
+      <div class="kpi-big" style="color:var(--red)">21<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">30% of calories</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- Macro breakdown chart -->
+    <div class="card">
+      <div class="card-label">Macro Distribution</div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <div style="width:160px;height:160px;flex-shrink:0"><canvas id="macroDonut"></canvas></div>
+        <div style="flex:1">
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-lbl" style="color:var(--blue)">Protein</span><span class="macro-val">76g · 304 kcal</span></div>
+            <div class="bar"><div class="bar-fill" style="width:49%;background:var(--blue)"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-lbl" style="color:var(--yellow)">Carbs</span><span class="macro-val">31g · 124 kcal</span></div>
+            <div class="bar"><div class="bar-fill" style="width:20%;background:var(--yellow)"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-top"><span class="macro-lbl" style="color:var(--red)">Fat</span><span class="macro-val">21g · 189 kcal</span></div>
+            <div class="bar"><div class="bar-fill" style="width:31%;background:var(--red)"></div></div>
+          </div>
+          <div style="margin-top:14px;padding:10px;background:rgba(99,102,241,0.08);border-radius:8px;border:1px solid rgba(99,102,241,0.2)">
+            <div style="font-size:11px;color:var(--muted)">No daily targets set</div>
+            <div style="font-size:11px;color:var(--accent);margin-top:2px">Ask Claude to set goals →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Water -->
+    <div class="card water-card">
+      <div class="card-label">Hydration</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Click drops to track glasses (250ml each)</div>
+      <div class="water-drops" id="water-drops"></div>
+      <div class="water-count"><span id="water-ml">0</span> ml</div>
+      <div class="water-goal" id="water-goal">Goal: 2,500 ml · <span id="water-pct">0%</span> reached</div>
+      <div style="margin-top:10px">
+        <div class="bar" style="height:10px"><div class="bar-fill" id="water-bar" style="width:0%;background:var(--blue)"></div></div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--red)">⚠ No water logged today via MCP — track manually above or ask Claude to log it</div>
+    </div>
+  </div>
+
+  <!-- Meals -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-label">Meals Logged Today</div>
+
+    <div class="meal-card">
+      <div class="meal-top">
+        <span class="meal-type-badge badge-breakfast">Breakfast</span>
+        <span class="meal-time">12:13 UTC</span>
+      </div>
+      <div class="meal-name">2 scoops Gold Standard Whey · 4 scoops Creatine · Orgain Creatine+Collagen · Ketone IQ · Caffeine</div>
+      <div class="meal-macros">
+        <span class="m-chip m-cal">310 kcal</span>
+        <span class="m-chip m-pro">58g protein</span>
+        <span class="m-chip m-carb">12g carbs</span>
+        <span class="m-chip m-fat">2g fat</span>
+      </div>
+      <div class="meal-notes">Whey ~240 kcal / 48g P · Orgain creatine+collagen ~45 kcal / 10g P · Ketone IQ ~25 kcal / 6g C · Creatine + caffeine ~0 kcal</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-top">
+        <span class="meal-type-badge badge-snack">Snack</span>
+        <span class="meal-time">12:14 UTC</span>
+      </div>
+      <div class="meal-name">3 small Pão de Queijo · 2 Chicharrones · Diet Coke 600ml</div>
+      <div class="meal-macros">
+        <span class="m-chip m-cal">310 kcal</span>
+        <span class="m-chip m-pro">18g protein</span>
+        <span class="m-chip m-carb">19g carbs</span>
+        <span class="m-chip m-fat">19g fat</span>
+      </div>
+      <div class="meal-notes">3 Pão de queijo ~210 kcal / 6g P / 18g C / 12g F · 2 Chicharrones ~100 kcal / 12g P / 7g F · Diet Coke 0 kcal</div>
+    </div>
+  </div>
+
+  <!-- Log Meal -->
+  <div class="log-section">
+    <h3>➕ Log a Meal</h3>
+    <p>Fill in the details below, then ask Claude to log it via the Nutrition MCP connector. Claude can estimate macros from a description too — just describe what you ate.</p>
+    <div class="log-form">
+      <div class="log-row">
+        <div class="form-group">
+          <label>Meal Type</label>
+          <select id="log-type">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack" selected>Snack</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Time</label>
+          <input type="time" id="log-time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>What did you eat?</label>
+        <textarea id="log-desc" rows="2" placeholder="e.g. 2 eggs, 1 slice toast, 200ml orange juice..."></textarea>
+      </div>
+      <div class="log-row">
+        <div class="form-group">
+          <label>Calories (kcal)</label>
+          <input type="number" id="log-cal" placeholder="e.g. 450">
+        </div>
+        <div class="form-group">
+          <label>Protein (g)</label>
+          <input type="number" id="log-pro" placeholder="e.g. 30">
+        </div>
+        <div class="form-group">
+          <label>Carbs (g)</label>
+          <input type="number" id="log-carb" placeholder="e.g. 40">
+        </div>
+        <div class="form-group">
+          <label>Fat (g)</label>
+          <input type="number" id="log-fat" placeholder="e.g. 15">
+        </div>
+      </div>
+      <div>
+        <button class="btn-log" onclick="buildPrompt()">📋 Copy prompt for Claude</button>
+        <div class="claude-note" id="claude-note" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK TAB -->
+<div class="page" id="tab-week">
+
+  <div class="grid4" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-label">Week Total Calories</div>
+      <div class="kpi-big" style="color:var(--orange)">620</div>
+      <div class="kpi-sub">kcal (1 day logged)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg Protein / day</div>
+      <div class="kpi-big" style="color:var(--blue)">76<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">logged days only</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Days Logged</div>
+      <div class="kpi-big" style="color:var(--teal)">1</div>
+      <div class="kpi-sub">of 7 this week</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg Calories / day</div>
+      <div class="kpi-big" style="color:var(--muted)">—</div>
+      <div class="kpi-sub">log more days to track</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-label">Daily Calories This Week</div>
+      <canvas id="weekCalChart"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-label">Macros by Day</div>
+      <canvas id="weekMacroChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-label">Daily Breakdown — Week of Apr 20</div>
+    <table class="week-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Calories</th>
+          <th>Protein</th>
+          <th>Carbs</th>
+          <th>Fat</th>
+          <th>Water</th>
+          <th>Meals</th>
+          <th style="width:140px">Cal bar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Sun Apr 20</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+        <tr><td>Mon Apr 21</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+        <tr><td>Tue Apr 22</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+        <tr><td>Wed Apr 23</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+        <tr><td>Thu Apr 24</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+        <tr class="today-row">
+          <td><strong>Fri Apr 25 ← Today</strong></td>
+          <td style="color:var(--orange);font-weight:700">620</td>
+          <td style="color:var(--blue);font-weight:700">76g</td>
+          <td style="color:var(--yellow);font-weight:700">31g</td>
+          <td style="color:var(--red);font-weight:700">21g</td>
+          <td style="color:var(--red)">0 ml</td>
+          <td>2</td>
+          <td><div class="cal-bar"><div class="cal-bar-fill" style="width:62%"></div></div></td>
+        </tr>
+        <tr><td>Sat Apr 26</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">—</td><td class="no-data">0</td><td></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;font-size:12px;color:var(--muted);padding:10px;background:rgba(99,102,241,0.06);border-radius:8px;border:1px solid rgba(99,102,241,0.15)">
+      💡 Only April 25 has meals logged. Start logging daily to unlock weekly averages and trends.
+    </div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// Macro donut
+new Chart(document.getElementById('macroDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Protein', 'Carbs', 'Fat'],
+    datasets: [{ data: [304, 124, 189], backgroundColor: ['rgba(59,130,246,0.8)','rgba(234,179,8,0.8)','rgba(239,68,68,0.8)'], borderWidth: 0, hoverOffset: 4 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true, cutout: '72%',
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw} kcal` } } }
+  }
+});
+
+// Weekly calories chart
+new Chart(document.getElementById('weekCalChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26'],
+    datasets: [{
+      label: 'Calories',
+      data: [null, null, null, null, null, 620, null],
+      backgroundColor: ctx => ctx.dataIndex === 5 ? 'rgba(249,115,22,0.7)' : 'rgba(249,115,22,0.15)',
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMax: 2500 }
+    }
+  }
+});
+
+// Weekly macro stacked chart
+new Chart(document.getElementById('weekMacroChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26'],
+    datasets: [
+      { label: 'Protein', data: [0,0,0,0,0,76,0], backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 0 },
+      { label: 'Carbs',   data: [0,0,0,0,0,31,0], backgroundColor: 'rgba(234,179,8,0.75)',  borderRadius: 0 },
+      { label: 'Fat',     data: [0,0,0,0,0,21,0], backgroundColor: 'rgba(239,68,68,0.75)',  borderRadius: 6 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12, padding: 12 } } },
+    scales: {
+      x: { stacked: true, ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { stacked: true, ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+    }
+  }
+});
+
+// Water tracker
+let waterGlasses = 0;
+const waterGoalMl = 2500;
+const glassSize = 250;
+const totalDrops = 10;
+
+function renderWater() {
+  const el = document.getElementById('water-drops');
+  el.innerHTML = '';
+  for (let i = 0; i < totalDrops; i++) {
+    const d = document.createElement('span');
+    d.className = 'drop' + (i < waterGlasses ? ' filled' : '');
+    d.textContent = '💧';
+    d.onclick = () => { waterGlasses = i < waterGlasses ? i : i + 1; renderWater(); };
+    el.appendChild(d);
+  }
+  const ml = waterGlasses * glassSize;
+  const pct = Math.round(ml / waterGoalMl * 100);
+  document.getElementById('water-ml').textContent = ml.toLocaleString();
+  document.getElementById('water-pct').textContent = pct + '%';
+  document.getElementById('water-bar').style.width = Math.min(pct, 100) + '%';
+}
+renderWater();
+
+// Log meal prompt builder
+function buildPrompt() {
+  const type = document.getElementById('log-type').value;
+  const time = document.getElementById('log-time').value;
+  const desc = document.getElementById('log-desc').value;
+  const cal  = document.getElementById('log-cal').value;
+  const pro  = document.getElementById('log-pro').value;
+  const carb = document.getElementById('log-carb').value;
+  const fat  = document.getElementById('log-fat').value;
+
+  let prompt = `Log a ${type} meal`;
+  if (time) prompt += ` at ${time}`;
+  if (desc) prompt += `: "${desc}"`;
+  if (cal)  prompt += `. Calories: ${cal} kcal`;
+  if (pro)  prompt += `, protein: ${pro}g`;
+  if (carb) prompt += `, carbs: ${carb}g`;
+  if (fat)  prompt += `, fat: ${fat}g`;
+  prompt += '.';
+
+  navigator.clipboard?.writeText(prompt).catch(() => {});
+  const note = document.getElementById('claude-note');
+  note.style.display = 'block';
+  note.innerHTML = `<strong>Prompt copied!</strong> Paste this into Claude:<br><br><em style="color:var(--text)">${prompt}</em>`;
+}
+
+// Set default time to now
+const now = new Date();
+document.getElementById('log-time').value = now.toTimeString().slice(0,5);
+</script>
+</body>
+</html>
