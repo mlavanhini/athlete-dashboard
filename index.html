@@ -154,7 +154,7 @@
 <header>
   <div>
     <div class="title">Marcelo Lavanhini</div>
-    <div class="subtitle">Athlete Dashboard · April 25, 2026</div>
+    <div class="subtitle">Athlete Dashboard · April 26, 2026</div>
   </div>
   <div class="badge"><span></span> Live data</div>
 </header>
@@ -168,7 +168,7 @@
     <div class="kpi">
       <div class="kpi-value color-yellow">68<span style="font-size:24px">%</span></div>
       <div class="kpi-unit">Moderate recovery</div>
-      <div class="kpi-delta color-yellow">↑ from 39% yesterday</div>
+      <div class="kpi-delta color-muted">WHOOP sync unavailable</div>
     </div>
     <div class="progress-row">
       <div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--yellow)"></div></div>
@@ -203,7 +203,7 @@
     <div class="kpi">
       <div class="kpi-value color-blue">6.2</div>
       <div class="kpi-unit">Today (so far) · Max 21</div>
-      <div class="kpi-delta color-muted">Yesterday: 13.8</div>
+      <div class="kpi-delta color-muted">WHOOP sync unavailable</div>
     </div>
     <div class="progress-row" style="margin-top:12px">
       <div class="progress-bar"><div class="progress-fill" style="width:29%;background:var(--blue)"></div></div>
@@ -218,13 +218,13 @@
   <div class="card">
     <div class="card-label">Nutrition Today</div>
     <div class="kpi">
-      <div class="kpi-value color-orange">620</div>
-      <div class="kpi-unit">kcal · 2 meals logged</div>
+      <div class="kpi-value color-orange">0</div>
+      <div class="kpi-unit">kcal · 0 meals logged</div>
     </div>
     <div class="macros">
-      <div class="macro"><div class="macro-val color-blue">76g</div><div class="macro-lbl">Protein</div></div>
-      <div class="macro"><div class="macro-val color-yellow">31g</div><div class="macro-lbl">Carbs</div></div>
-      <div class="macro"><div class="macro-val color-red">21g</div><div class="macro-lbl">Fat</div></div>
+      <div class="macro"><div class="macro-val color-blue">0g</div><div class="macro-lbl">Protein</div></div>
+      <div class="macro"><div class="macro-val color-yellow">0g</div><div class="macro-lbl">Carbs</div></div>
+      <div class="macro"><div class="macro-val color-red">0g</div><div class="macro-lbl">Fat</div></div>
     </div>
     <div class="water-note" style="margin-top:10px">💧 No water logged today</div>
     <div class="card-source">Nutrition MCP</div>
@@ -239,9 +239,9 @@
   <div class="card">
     <div class="card-label">Performance Management (14 days)</div>
     <div class="fitness-badges">
-      <div class="f-badge"><div class="f-badge-val color-blue">28.3</div><div class="f-badge-lbl">CTL Fitness</div></div>
-      <div class="f-badge"><div class="f-badge-val color-red">35.8</div><div class="f-badge-lbl">ATL Fatigue</div></div>
-      <div class="f-badge"><div class="f-badge-val color-yellow">-8.7</div><div class="f-badge-lbl">TSB Form</div></div>
+      <div class="f-badge"><div class="f-badge-val color-blue">29.7</div><div class="f-badge-lbl">CTL Fitness</div></div>
+      <div class="f-badge"><div class="f-badge-val color-red">43.1</div><div class="f-badge-lbl">ATL Fatigue</div></div>
+      <div class="f-badge"><div class="f-badge-val color-yellow">-7.5</div><div class="f-badge-lbl">TSB Form</div></div>
       <div class="f-badge"><div class="f-badge-val" style="font-size:16px">271.6</div><div class="f-badge-lbl">TSS this week</div></div>
     </div>
     <div class="status-chip">⚡ Tired — absorbing training load</div>
@@ -322,34 +322,17 @@
   <div class="card">
     <div class="card-label">Today's Meals</div>
     <div class="meal-list">
-      <div class="meal-item">
-        <div>
-          <div class="meal-type">Breakfast</div>
-          <div class="meal-name">Whey + Creatine + Orgain + Ketone IQ</div>
-        </div>
-        <div class="meal-cal">310 kcal</div>
-      </div>
-      <div style="padding: 4px 10px; font-size:11px; color:var(--muted)">
-        58g protein · 12g carbs · 2g fat
-      </div>
-      <div class="meal-item">
-        <div>
-          <div class="meal-type">Snack</div>
-          <div class="meal-name">Pão de queijo + Chicharrones + Diet Coke</div>
-        </div>
-        <div class="meal-cal">310 kcal</div>
-      </div>
-      <div style="padding: 4px 10px; font-size:11px; color:var(--muted)">
-        18g protein · 19g carbs · 19g fat
+      <div style="padding: 20px 10px; text-align:center; color:var(--muted); font-size:13px">
+        No meals logged today
       </div>
     </div>
     <div style="margin-top:14px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border)">
       <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px">Daily Totals</div>
       <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:8px; text-align:center">
-        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">620</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--blue)">76g</div><div style="font-size:10px; color:var(--muted)">protein</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">31g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--red)">21g</div><div style="font-size:10px; color:var(--muted)">fat</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">0</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--blue)">0g</div><div style="font-size:10px; color:var(--muted)">protein</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">0g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--red)">0g</div><div style="font-size:10px; color:var(--muted)">fat</div></div>
       </div>
     </div>
     <div class="card-source">Nutrition MCP</div>
@@ -365,7 +348,7 @@
 </div>
 
 <div style="padding: 16px 28px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px;">
-  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 25, 2026 at 8:00 AM ET (scheduled run)
+  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 8:00 AM ET (scheduled run) · WHOOP sync unavailable
 </div>
 
 <script>
@@ -383,23 +366,23 @@ const chartDefaults = {
 new Chart(document.getElementById('pmcChart'), {
   type: 'line',
   data: {
-    labels: ['Apr 11','Apr 12','Apr 13','Apr 14','Apr 15','Apr 16','Apr 17','Apr 18','Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25'],
+    labels: ['Apr 12','Apr 13','Apr 14','Apr 15','Apr 16','Apr 17','Apr 18','Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26'],
     datasets: [
       {
         label: 'CTL (Fitness)',
-        data: [25.2,24.6,25.6,25.0,25.3,25.5,26.7,26.6,27.9,27.7,27.0,28.1,27.4,28.3,28.3],
+        data: [24.6,25.6,25.0,25.3,25.5,26.7,26.6,27.9,27.7,27.0,28.1,27.4,28.3,28.3,29.7],
         borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)',
         borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
       },
       {
         label: 'ATL (Fatigue)',
-        data: [29.0,24.9,31.0,26.6,28.1,28.6,35.6,33.9,40.3,37.4,32.0,37.5,32.1,37.0,35.8],
+        data: [24.9,31.0,26.6,28.1,28.6,35.6,33.9,40.3,37.4,32.0,37.5,32.1,37.0,35.8,43.1],
         borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)',
         borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
       },
       {
         label: 'TSB (Form)',
-        data: [-8.0,-3.8,-0.2,-5.4,-1.5,-2.8,-3.2,-8.9,-7.2,-12.4,-9.7,-5.0,-9.4,-4.7,-8.7],
+        data: [-3.8,-0.2,-5.4,-1.5,-2.8,-3.2,-8.9,-7.2,-12.4,-9.7,-5.0,-9.4,-4.7,-8.7,-7.5],
         borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.05)',
         borderWidth: 2, pointRadius: 3, tension: 0.4, yAxisID: 'y2', fill: false,
         borderDash: [5,3]
@@ -420,11 +403,11 @@ new Chart(document.getElementById('pmcChart'), {
 new Chart(document.getElementById('trendChart'), {
   type: 'bar',
   data: {
-    labels: ['Apr 19','Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25'],
+    labels: ['Apr 20','Apr 21','Apr 22','Apr 23','Apr 24','Apr 25','Apr 26'],
     datasets: [
       {
         label: 'Recovery %',
-        data: [97, 55, 36, 69, 61, 39, 68],
+        data: [55, 36, 69, 61, 39, 68, null],
         backgroundColor: ctx => {
           const v = ctx.raw;
           return v >= 67 ? 'rgba(34,197,94,0.7)' : v >= 34 ? 'rgba(234,179,8,0.7)' : 'rgba(239,68,68,0.7)';
@@ -433,14 +416,14 @@ new Chart(document.getElementById('trendChart'), {
       },
       {
         label: 'Strain',
-        data: [15.7, 9.3, 2.4, 10.0, 4.0, 13.8, 6.2],
+        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, null],
         type: 'line',
         borderColor: '#3b82f6', backgroundColor: 'transparent',
         borderWidth: 2.5, pointRadius: 4, tension: 0.4, yAxisID: 'y2'
       },
       {
         label: 'Sleep %',
-        data: [80, 81, 33, 75, 78, 75, 81],
+        data: [81, 33, 75, 78, 75, 81, null],
         type: 'line',
         borderColor: '#a855f7', backgroundColor: 'transparent',
         borderWidth: 2, pointRadius: 4, tension: 0.4, yAxisID: 'y', borderDash: [4,3]
