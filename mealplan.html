@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcelo · Meal Plan</title>
+<style>
+  :root {
+    --bg: #0d0f14; --card: #161a23; --border: #252b38;
+    --text: #e2e8f0; --muted: #64748b;
+    --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+    --blue: #3b82f6; --purple: #a855f7; --orange: #f97316;
+    --teal: #14b8a6; --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+  .nav { display:flex; gap:4px; padding: 12px 28px; background: #0d0f14; border-bottom: 1px solid var(--border); }
+  .nav a { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--muted); transition: all 0.15s; }
+  .nav a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .nav a.active { color: var(--text); background: rgba(255,255,255,0.08); }
+
+  header { display:flex; align-items:center; justify-content:space-between; padding: 20px 28px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+  .header-left .title { font-size: 18px; font-weight: 700; }
+  .header-left .subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .timestamp { font-size: 11px; color: var(--muted); background: var(--card); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; }
+
+  /* Tabs */
+  .tabs { display:flex; gap:4px; padding: 16px 28px 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { padding: 8px 20px; border-radius: 8px 8px 0 0; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+         color: var(--muted); border: 1px solid transparent; border-bottom: none; transition: all 0.15s; margin-bottom: -1px; }
+  .tab.active { color: var(--text); background: var(--card); border-color: var(--border); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .page { display: none; padding: 24px 28px; }
+  .page.active { display: block; }
+
+  /* Cards */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  .card-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 14px; font-weight: 600; }
+
+  /* Day type badges */
+  .dtype-hard { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 7px; border-radius:4px; background:rgba(239,68,68,0.15); color:var(--red); }
+  .dtype-mod  { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 7px; border-radius:4px; background:rgba(234,179,8,0.15); color:var(--yellow); }
+  .dtype-easy { display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; padding:2px 7px; border-radius:4px; background:rgba(34,197,94,0.15); color:var(--green); }
+
+  /* Day cards */
+  .day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .day-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .day-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .day-title { font-size: 15px; font-weight: 700; }
+  .day-training { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .day-kcal { text-align: right; }
+  .day-kcal-num { font-size: 22px; font-weight: 800; color: var(--orange); letter-spacing: -1px; }
+  .day-kcal-lbl { font-size: 10px; color: var(--muted); }
+  .day-macros { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+  .day-macro { flex: 1; text-align: center; padding: 8px 6px; border-right: 1px solid var(--border); }
+  .day-macro:last-child { border-right: none; }
+  .day-macro-val { font-size: 14px; font-weight: 700; }
+  .day-macro-lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 1px; }
+  .meal-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .meal-row { display: flex; gap: 10px; align-items: flex-start; }
+  .meal-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .meal-body { flex: 1; }
+  .meal-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 2px; }
+  .meal-desc { font-size: 12px; line-height: 1.5; }
+  .meal-kcal { font-size: 11px; color: var(--orange); font-weight: 600; margin-top: 2px; }
+
+  /* Grocery */
+  .grocery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grocery-section { }
+  .grocery-section h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; display:flex; align-items:center; gap:8px; }
+  .grocery-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .grocery-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted);
+                      padding: 6px 8px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  .grocery-table td { padding: 8px 8px; border-bottom: 1px solid rgba(37,43,56,0.5); vertical-align: top; }
+  .grocery-table tr:last-child td { border-bottom: none; }
+  .grocery-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .trip1 { color: var(--teal); font-weight: 600; }
+  .trip2 { color: var(--purple); font-weight: 600; }
+  .trip-badge { display:inline-block; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; }
+  .trip-badge.t1 { background: rgba(20,184,166,0.15); color: var(--teal); }
+  .trip-badge.t2 { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .shopping-tip { padding: 10px 14px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 8px; font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+
+  /* Recipes */
+  .recipe-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .recipe-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .recipe-header { padding: 14px 16px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .recipe-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .recipe-sub { font-size: 11px; color: var(--muted); }
+  .recipe-macros { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .r-chip { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+  .r-cal { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .r-pro { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .r-carb { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .r-fat { background: rgba(239,68,68,0.15); color: var(--red); }
+  .recipe-body { padding: 14px 16px; }
+  .recipe-section-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 6px; }
+  .ingredient-list { list-style: none; margin-bottom: 14px; }
+  .ingredient-list li { font-size: 12px; padding: 3px 0; border-bottom: 1px solid rgba(37,43,56,0.4); display: flex; gap: 8px; }
+  .ingredient-list li:last-child { border-bottom: none; }
+  .ing-qty { color: var(--accent); font-weight: 600; min-width: 80px; flex-shrink: 0; }
+  .steps-list { list-style: none; counter-reset: steps; }
+  .steps-list li { font-size: 12px; line-height: 1.5; padding: 5px 0 5px 26px; position: relative; color: var(--muted); border-bottom: 1px solid rgba(37,43,56,0.3); counter-increment: steps; }
+  .steps-list li:last-child { border-bottom: none; }
+  .steps-list li::before { content: counter(steps); position: absolute; left: 0; top: 6px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .used-on { font-size: 11px; color: var(--accent); margin-top: 10px; padding: 6px 10px; background: rgba(99,102,241,0.08); border-radius: 6px; }
+
+  /* Rules */
+  .rules-list { display: flex; flex-direction: column; gap: 10px; }
+  .rule { display: flex; gap: 14px; padding: 12px 14px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border); }
+  .rule-num { font-size: 18px; font-weight: 800; color: var(--accent); min-width: 28px; }
+  .rule-text { font-size: 13px; line-height: 1.6; }
+  .rule-text strong { color: var(--text); }
+
+  @media (max-width: 900px) {
+    .day-grid { grid-template-columns: 1fr; }
+    .grocery-grid { grid-template-columns: 1fr; }
+    .recipe-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">📊 Dashboard</a>
+  <a href="calendar.html">📅 Calendar</a>
+  <a href="nutrition.html">🥗 Nutrition</a>
+  <a href="mealplan.html" class="active">🍽️ Meal Plan</a>
+</nav>
+
+<header>
+  <div class="header-left">
+    <div class="title">Meal Plan v5 — Lower Carb</div>
+    <div class="subtitle">Apr 26 – May 3, 2026 · Built from TrainingPeaks + COROS data</div>
+  </div>
+  <div class="timestamp">🕐 Last updated: <strong>Apr 25, 2026</strong></div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('plan', this)">📅 8-Day Plan</div>
+  <div class="tab" onclick="switchTab('grocery', this)">🛒 Grocery List</div>
+  <div class="tab" onclick="switchTab('recipes', this)">👨‍🍳 Recipes</div>
+  <div class="tab" onclick="switchTab('rules', this)">📋 Rules of the Road</div>
+</div>
+
+<!-- 8-DAY PLAN TAB -->
+<div class="page active" id="tab-plan">
+  <div style="padding:12px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.6">
+    ⚠️ <strong>Heads up:</strong> This is a heavier training week. TrainingPeaks has you running/biking 7 of 8 days, with 2 upper-body strength sessions (Mon, Thu) and a lower-body lift (Sun May 3). Avg calories step up to <strong>~2,080/day</strong>. Realistic target: ~1 kg net loss across the 8 days.
+  </div>
+
+  <div class="day-grid" id="day-grid"></div>
+</div>
+
+<!-- GROCERY TAB -->
+<div class="page" id="tab-grocery">
+  <div class="shopping-tip">
+    🛍️ <strong>Two shopping trips:</strong> <span class="trip1">Trip 1 — Sat Apr 25 PM</span> covers Sun–Wed (Session #1 batch cook).
+    <span class="trip2">Trip 2 — Wed Apr 29 PM</span> covers Thu–Sun (Session #2 batch cook). Cooked meat lasts 3–4 days fridge.
+  </div>
+
+  <div class="grocery-grid">
+
+    <div class="grocery-section">
+      <h3>🥩 Proteins</h3>
+      <table class="grocery-table">
+        <thead><tr><th>Item</th><th>Total</th><th>Trip 1</th><th>Trip 2</th></tr></thead>
+        <tbody>
+          <tr><td>Lean ground beef 95/5</td><td><strong>2.0 kg</strong></td><td class="trip1">1.0 kg</td><td class="trip2">1.0 kg</td></tr>
+          <tr><td>Chicken breast</td><td><strong>1.8 kg</strong></td><td class="trip1">1.0 kg</td><td class="trip2">0.8 kg</td></tr>
+          <tr><td>Picanha (Sun 5/3)</td><td><strong>250 g</strong></td><td>—</td><td class="trip2">250 g fresh</td></tr>
+          <tr><td>Eggs (large)</td><td><strong>3 dozen</strong></td><td class="trip1">2 dozen</td><td class="trip2">1 dozen</td></tr>
+          <tr><td>Whey protein</td><td><strong>1 tub</strong></td><td class="trip1">Buy if low (~14 scoops)</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grocery-section">
+      <h3>🥛 Dairy</h3>
+      <table class="grocery-table">
+        <thead><tr><th>Item</th><th>Total</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Part-skim ricotta</td><td><strong>800 g</strong></td><td>Breakfast A ×1 + Oats ×3 + buffer</td></tr>
+          <tr><td>Greek yogurt 0% fat</td><td><strong>1.2 kg</strong></td><td>Breakfast B ×3 (600g) + snacks ×5 (1000g) — buy large tub</td></tr>
+          <tr><td>Cottage cheese</td><td><strong>250 g</strong></td><td>Optional alt-snack on rest day</td></tr>
+          <tr><td>Butter (unsalted)</td><td><strong>1 small stick</strong></td><td>5g × 8 breakfasts ≈ 40g total</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grocery-section">
+      <h3>🥦 Produce</h3>
+      <table class="grocery-table">
+        <thead><tr><th>Item</th><th>Total</th><th>Trip 1</th><th>Trip 2</th></tr></thead>
+        <tbody>
+          <tr><td>Cucumbers</td><td><strong>4</strong></td><td class="trip1">2</td><td class="trip2">2</td></tr>
+          <tr><td>Cherry tomatoes</td><td><strong>2 pints</strong></td><td class="trip1">1</td><td class="trip2">1</td></tr>
+          <tr><td>Bell peppers</td><td><strong>5</strong></td><td class="trip1">3</td><td class="trip2">2</td></tr>
+          <tr><td>Broccoli</td><td><strong>3 heads</strong></td><td class="trip1">2</td><td class="trip2">1</td></tr>
+          <tr><td>Green beans (frozen)</td><td><strong>2 bags 450g</strong></td><td class="trip1">1</td><td class="trip2">1</td></tr>
+          <tr><td>Zucchini</td><td><strong>4 medium</strong></td><td class="trip1">2</td><td class="trip2">2</td></tr>
+          <tr><td>Mixed salad greens</td><td><strong>3 bags</strong></td><td class="trip1">2</td><td class="trip2">1</td></tr>
+          <tr><td>Sweet potatoes</td><td><strong>6 medium</strong></td><td class="trip1">3</td><td class="trip2">3</td></tr>
+          <tr><td>Avocado</td><td><strong>3</strong></td><td class="trip1">1 (Sun 4/26)</td><td class="trip2">2 (Thu, Sat)</td></tr>
+          <tr><td>Bananas (small)</td><td><strong>5</strong></td><td class="trip1">3</td><td class="trip2">2</td></tr>
+          <tr><td>Apples (small)</td><td><strong>1</strong></td><td>—</td><td class="trip2">1 (Sun 5/3 pre-lift)</td></tr>
+          <tr><td>Red onion</td><td><strong>2</strong></td><td class="trip1">1</td><td class="trip2">1</td></tr>
+          <tr><td>Garlic (bulb)</td><td><strong>1</strong></td><td class="trip1">1</td><td>—</td></tr>
+          <tr><td>Lemons</td><td><strong>3</strong></td><td class="trip1">2</td><td class="trip2">1</td></tr>
+          <tr><td>Cauliflower (optional)</td><td><strong>1 head</strong></td><td class="trip1">1</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grocery-section">
+      <h3>🌾 Pantry / Dry Goods</h3>
+      <table class="grocery-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Rolled oats</td><td><strong>1 small bag</strong></td><td>40g × 3 lift days = 120g</td></tr>
+          <tr><td>White/basmati rice</td><td><strong>250g bag</strong></td><td>~200g dry across 8 days</td></tr>
+          <tr><td>Quinoa</td><td><strong>200g bag</strong></td><td>50g × 3 dinners = 150g dry</td></tr>
+          <tr><td>Lentils (dry)</td><td><strong>200g bag</strong></td><td>50g × 2 double-session lunches</td></tr>
+          <tr><td>Black beans (canned)</td><td><strong>2 cans</strong></td><td>Sun 4/26 + Sat 5/2 long-run meals</td></tr>
+          <tr><td>Raw almonds</td><td><strong>150g</strong></td><td>20g × ~5 snack days</td></tr>
+          <tr><td>Walnuts</td><td><strong>100g</strong></td><td>10g × ~4 evenings</td></tr>
+          <tr><td>Chia seeds</td><td><strong>1 small bag</strong></td><td>10g × 3 yogurt breakfasts</td></tr>
+          <tr><td>Olive oil (extra-virgin)</td><td><strong>Have on hand</strong></td><td>~150ml across 8 days</td></tr>
+          <tr><td>Salsa (no sugar added)</td><td><strong>1 jar</strong></td><td>Long-run breakfasts (Sun, Sat)</td></tr>
+          <tr><td>Hot sauce</td><td><strong>1 bottle</strong></td><td>Lunch flavor</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:20px">⚡ Training Fuel</h3>
+      <table class="grocery-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Energy gels</td><td><strong>4 gels</strong></td><td>1 per long run × 2 + 2 backup. Maurten/SIS/GU.</td></tr>
+          <tr><td>Electrolyte tabs/powder</td><td><strong>1 tube/bag</strong></td><td>LMNT or Nuun. Daily, especially long-run days.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Batch cook schedule -->
+  <div class="card" style="margin-top:4px">
+    <div class="card-label">Batch Cook Schedule</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:10px">🍳 Session #1 — Sat Apr 25 PM (covers Sun–Wed)</div>
+        <table class="grocery-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Covers</th></tr></thead>
+          <tbody>
+            <tr><td>Ground beef 95/5</td><td>1.0 kg raw</td><td>Sun–Wed lunches</td></tr>
+            <tr><td>Chicken breast</td><td>1.0 kg raw</td><td>Sun–Wed dinners</td></tr>
+            <tr><td>Roasted veggies</td><td>2 trays</td><td>Dinner Sun–Wed</td></tr>
+            <tr><td>Raw veg (cold)</td><td>—</td><td>Lunch Sun–Wed</td></tr>
+            <tr><td>Sweet potato</td><td>3 medium</td><td>Mon (×2), Wed lunch+dinner</td></tr>
+            <tr><td>Cooked rice</td><td>100g dry</td><td>Sun B/L/D + Mon post-lift</td></tr>
+            <tr><td>Cooked lentils</td><td>80g dry</td><td>Mon double-session lunch</td></tr>
+            <tr><td>Hard-boiled eggs</td><td>8 eggs</td><td>Snacks Sun–Wed</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:10px">🍳 Session #2 — Wed Apr 29 PM (covers Thu–Sun)</div>
+        <table class="grocery-table">
+          <thead><tr><th>Item</th><th>Qty</th><th>Covers</th></tr></thead>
+          <tbody>
+            <tr><td>Ground beef 95/5</td><td>1.0 kg raw</td><td>Thu–Sun lunches</td></tr>
+            <tr><td>Chicken breast</td><td>0.8 kg raw</td><td>Thu–Sat dinners</td></tr>
+            <tr><td>Picanha</td><td>250g raw</td><td>Sun 5/3 dinner (cook fresh)</td></tr>
+            <tr><td>Roasted veggies</td><td>2 trays</td><td>Dinner Thu–Sun</td></tr>
+            <tr><td>Sweet potato</td><td>3 medium</td><td>Thu (×2), Fri, Sun</td></tr>
+            <tr><td>Cooked rice</td><td>100g dry</td><td>Sat B/L/D + Sun post-lift + Thu dinner</td></tr>
+            <tr><td>Cooked lentils</td><td>80g dry</td><td>Thu double-session lunch</td></tr>
+            <tr><td>Hard-boiled eggs</td><td>8 eggs</td><td>Snacks Thu–Sun</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECIPES TAB -->
+<div class="page" id="tab-recipes">
+
+  <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Three repeating meals across all 8 days — batch cook proteins once and assemble daily.</div>
+
+  <div class="recipe-grid">
+
+    <!-- Breakfast A -->
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-title">🧀 Breakfast A · Ricotta Eggs</div>
+        <div class="recipe-sub">Easy days only (Tue 4/28)</div>
+      </div>
+      <div class="recipe-macros">
+        <span class="r-chip r-cal">470 kcal</span>
+        <span class="r-chip r-pro">36g P</span>
+        <span class="r-chip r-carb">8g C</span>
+        <span class="r-chip r-fat">30g F</span>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section-lbl">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">3 large</span>eggs</li>
+          <li><span class="ing-qty">5g</span>unsalted butter</li>
+          <li><span class="ing-qty">150g</span>part-skim ricotta</li>
+          <li><span class="ing-qty">1 cup</span>coffee (black)</li>
+        </ul>
+        <div class="recipe-section-lbl">Method</div>
+        <ol class="steps-list">
+          <li>Melt butter in non-stick pan over medium-low heat.</li>
+          <li>Whisk eggs and pour in. Stir gently until just set.</li>
+          <li>Remove from heat, fold in ricotta — residual heat warms it.</li>
+          <li>Season with salt and pepper. Serve immediately.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Breakfast B -->
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-title">🥛 Breakfast B · Yogurt Eggs</div>
+        <div class="recipe-sub">Mod/Hard non-lift days (Wed 4/29, Fri 5/1)</div>
+      </div>
+      <div class="recipe-macros">
+        <span class="r-chip r-cal">400 kcal</span>
+        <span class="r-chip r-pro">42g P</span>
+        <span class="r-chip r-carb">9g C</span>
+        <span class="r-chip r-fat">20g F</span>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section-lbl">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">3 large</span>eggs (scrambled or boiled)</li>
+          <li><span class="ing-qty">200g</span>Greek yogurt 0% fat</li>
+          <li><span class="ing-qty">10g</span>chia seeds</li>
+          <li><span class="ing-qty">1 cup</span>coffee (black)</li>
+        </ul>
+        <div class="recipe-section-lbl">Method</div>
+        <ol class="steps-list">
+          <li>Mix chia seeds into yogurt the night before (gel overnight).</li>
+          <li>Cook eggs your preferred way.</li>
+          <li>On run days: add pre-run whey + banana 30 min before.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Breakfast C -->
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-title">🥣 Breakfast C · Oats (Lift Days)</div>
+        <div class="recipe-sub">Mon 4/27 · Thu 4/30 · Sun 5/3</div>
+      </div>
+      <div class="recipe-macros">
+        <span class="r-chip r-cal">490 kcal</span>
+        <span class="r-chip r-pro">44g P</span>
+        <span class="r-chip r-carb">35g C</span>
+        <span class="r-chip r-fat">20g F</span>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section-lbl">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">40g</span>rolled oats</li>
+          <li><span class="ing-qty">30g</span>whey protein (1 scoop)</li>
+          <li><span class="ing-qty">100g</span>part-skim ricotta</li>
+          <li><span class="ing-qty">½ tsp</span>cinnamon</li>
+          <li><span class="ing-qty">1 cup</span>coffee (black)</li>
+        </ul>
+        <div class="recipe-section-lbl">Method</div>
+        <ol class="steps-list">
+          <li>Cook oats with water or milk to desired consistency.</li>
+          <li>Let cool slightly, stir in whey protein.</li>
+          <li>Top with ricotta and cinnamon. Do not microwave whey.</li>
+        </ol>
+        <div class="used-on">⚡ Fuels the lift. Eat 60–90 min before training.</div>
+      </div>
+    </div>
+
+    <!-- Breakfast D -->
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-title">🍳 Breakfast D · Post Long-Run</div>
+        <div class="recipe-sub">Sun 4/26 · Sat 5/2 (after long run)</div>
+      </div>
+      <div class="recipe-macros">
+        <span class="r-chip r-cal">560 kcal</span>
+        <span class="r-chip r-pro">40g P</span>
+        <span class="r-chip r-carb">55g C</span>
+        <span class="r-chip r-fat">20g F</span>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section-lbl">Ingredients</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">4 large</span>eggs</li>
+          <li><span class="ing-qty">100g cooked</span>white rice</li>
+          <li><span class="ing-qty">50g cooked</span>black beans</li>
+          <li><span class="ing-qty">2 tbsp</span>salsa (no sugar)</li>
+          <li><span class="ing-qty">1 cup</span>coffee (black)</li>
+        </ul>
+        <div class="recipe-section-lbl">Method</div>
+        <ol class="steps-list">
+          <li>Rice and beans are batch-cooked — reheat in microwave 90s.</li>
+          <li>Scramble or fry eggs in minimal oil or non-stick spray.</li>
+          <li>Plate rice + beans, top with eggs and salsa.</li>
+          <li>Eat within 30 min of finishing the long run.</li>
+        </ol>
+        <div class="used-on">🏃 Replenishes glycogen post long run. Don't skip.</div>
+      </div>
+    </div>
+
+    <!-- Lunch -->
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-title">🥩 Lunch · Ground Beef Bowl</div>
+        <div class="recipe-sub">All 8 days — carb add-on varies by day type</div>
+      </div>
+      <div class="recipe-macros">
+        <span class="r-chip r-cal">520–700 kcal</span>
+        <span class="r-chip r-pro">50–57g P</span>
+        <span class="r-chip r-carb">10–40g C</span>
+        <span class="r-chip r-fat">30–31g F</span>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section-lbl">Base (every day)</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">200g</span>browned lean ground beef 95/5</li>
+          <li><span class="ing-qty">200g</span>raw cucumber / cherry tomatoes / bell pepper</li>
+          <li><span class="ing-qty">1 handful</span>mixed salad greens</li>
+          <li><span class="ing-qty">1 tbsp</span>olive oil</li>
+          <li><span class="ing-qty">to taste</span>cumin, paprika, hot sauce</li>
+        </ul>
+        <div class="recipe-section-lbl">Carb Add-ons by Day Type</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">EASY</span>No carb add-on (520 kcal)</li>
+          <li><span class="ing-qty">MOD</span>+ 80g cooked sweet potato (620 kcal)</li>
+          <li><span class="ing-qty">HARD run</span>+ 80g rice + 30g black beans (680 kcal)</li>
+          <li><span class="ing-qty">HARD double</span>+ 80g sweet potato + 50g lentils (700 kcal)</li>
+        </ul>
+        <div class="recipe-section-lbl">Method</div>
+        <ol class="steps-list">
+          <li>Beef is batch-cooked — reheat in pan or microwave with cumin/paprika.</li>
+          <li>Assemble greens, raw veg, and olive oil as base.</li>
+          <li>Top with beef and carb add-on for the day.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Dinner -->
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-title">🍗 Dinner · Chicken Bowl</div>
+        <div class="recipe-sub">All days except Sun 5/3 (Picanha swap)</div>
+      </div>
+      <div class="recipe-macros">
+        <span class="r-chip r-cal">460–680 kcal</span>
+        <span class="r-chip r-pro">50–53g P</span>
+        <span class="r-chip r-carb">12–40g C</span>
+        <span class="r-chip r-fat">22–33g F</span>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-section-lbl">Base (every day)</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">200g</span>grilled chicken breast</li>
+          <li><span class="ing-qty">200g</span>roasted veggies (broccoli, green beans, zucchini, peppers)</li>
+          <li><span class="ing-qty">1 small</span>side salad</li>
+          <li><span class="ing-qty">1 tbsp</span>olive oil</li>
+          <li><span class="ing-qty">to taste</span>lemon, oregano, salt, pepper</li>
+        </ul>
+        <div class="recipe-section-lbl">Carb Add-ons by Day Type</div>
+        <ul class="ingredient-list">
+          <li><span class="ing-qty">EASY</span>No carb add-on (460 kcal)</li>
+          <li><span class="ing-qty">MOD</span>+ 50g cooked quinoa (560 kcal)</li>
+          <li><span class="ing-qty">HARD</span>+ 80g rice + ½ avocado (680 kcal)</li>
+          <li><span class="ing-qty">Sun 5/3</span>Picanha 250g + veg + 80g sweet potato (620 kcal)</li>
+        </ul>
+        <div class="recipe-section-lbl">Batch Cook Method</div>
+        <ol class="steps-list">
+          <li>Season chicken with lemon, oregano, salt, pepper.</li>
+          <li>Bake at 400°F × 22 min. Slice into 200g portions.</li>
+          <li>Toss veggies with olive oil, roast at 425°F × 20 min.</li>
+          <li>Reheat daily — 90s microwave or 5 min in pan.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RULES TAB -->
+<div class="page" id="tab-rules">
+  <div class="card">
+    <div class="card-label">Rules of the Road — v5</div>
+    <div class="rules-list">
+      <div class="rule">
+        <div class="rule-num">1</div>
+        <div class="rule-text"><strong>Protein first.</strong> 220g target every day. If under 2,100 kcal AND hitting 220g, the plan works. Add 1 whey scoop anywhere if falling short.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">2</div>
+        <div class="rule-text"><strong>Sleep is the bottleneck this week.</strong> 4 hard days requires 4 nights of ≥7h. Apr 25 was your first 7h+ since Apr 20. If you can't hit 7h, eat the upper end of the calorie range — don't cut.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">3</div>
+        <div class="rule-text"><strong>Hydration: 4L/day this week.</strong> 4 hard days + low-carb = sodium/electrolyte loss. Take an electrolyte tab daily, especially on long-run days.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">4</div>
+        <div class="rule-text"><strong>Tuesday is your only easy day.</strong> Don't add anything to it — it's the recovery valve for the whole week. Use it for sleep.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">5</div>
+        <div class="rule-text"><strong>If a session is in trouble,</strong> priority order to drop: (a) Mon strides, (b) one upper-body lift, (c) Wed tempo. Never drop the long runs or Sun 5/3 lower body — those are your high-leverage stimulus.</div>
+      </div>
+      <div class="rule">
+        <div class="rule-num">6</div>
+        <div class="rule-text"><strong>Boredom check.</strong> 8 days of ground beef + chicken. If you hit the wall by Wed, swap one chicken dinner for salmon or eggs+veg — same macros, different taste, saves compliance.</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:11px;color:var(--muted);font-style:italic">v5 built Apr 25, 2026 from real TP + COROS data. Re-pull mid-week (Tue 4/28 or Wed 4/29) to confirm sessions are landing.</div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// 8-day plan data
+const DAYS = [
+  { label:'Sun 4/26', type:'HARD', training:'Long Run 76min · TL 143 · LT1 zones', kcal:2250, p:215, c:160, f:90,
+    meals: [
+      { icon:'🍌', type:'Pre-run', desc:'Banana + 1 scoop whey · 1 gel @ 45 min', kcal:180 },
+      { icon:'🍳', type:'Post-run Breakfast', desc:'4 eggs + 100g rice + 50g black beans + salsa + coffee', kcal:560 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g rice + 30g black beans (portable)', kcal:680 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl + 80g rice + ½ avocado', kcal:680 },
+      { icon:'🥛', type:'Snack', desc:'200g yogurt + 10g walnuts', kcal:130 },
+    ]},
+  { label:'Mon 4/27', type:'HARD', training:'Run+Strides 38min · Upper Body 33 sets (double)', kcal:2200, p:225, c:145, f:85,
+    meals: [
+      { icon:'🥣', type:'Breakfast', desc:'40g oats + 1 scoop whey + 100g ricotta + cinnamon', kcal:490 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g sweet potato + 50g lentils', kcal:700 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl + 50g quinoa', kcal:560 },
+      { icon:'⚡', type:'Snacks', desc:'Pre-run: banana + whey · Post-lift: 1 scoop whey + 30g rice', kcal:450 },
+    ]},
+  { label:'Tue 4/28', type:'EASY', training:'Giro Regenerativo 60min · Z1 bike', kcal:1790, p:183, c:41, f:94,
+    meals: [
+      { icon:'🧀', type:'Breakfast', desc:'3 eggs scrambled + 150g ricotta + coffee', kcal:470 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl base — no carb add-on', kcal:520 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl base — no carb add-on', kcal:460 },
+      { icon:'🥛', type:'Snacks', desc:'Pre-ride: 1 scoop whey · Eve: 200g yogurt + cinnamon', kcal:340 },
+    ]},
+  { label:'Wed 4/29', type:'MOD', training:'Tempo Run 44min · 10-min Tempo block', kcal:2030, p:194, c:88, f:92,
+    meals: [
+      { icon:'🥛', type:'Breakfast', desc:'3 eggs + 200g Greek yogurt + 10g chia + coffee', kcal:400 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g sweet potato', kcal:620 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl + 50g quinoa', kcal:560 },
+      { icon:'🥚', type:'Snacks', desc:'Pre-run: whey + banana · Mid: 2 boiled eggs + 20g almonds', kcal:450 },
+    ]},
+  { label:'Thu 4/30', type:'HARD', training:'Mixed Z3/Z4 Bike 56min · Upper Body 33 sets (double)', kcal:2210, p:225, c:145, f:85,
+    meals: [
+      { icon:'🥣', type:'Breakfast', desc:'40g oats + 1 scoop whey + 100g ricotta + cinnamon', kcal:490 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g sweet potato + 50g lentils', kcal:700 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl + 80g rice + ½ avocado', kcal:680 },
+      { icon:'⚡', type:'Snacks', desc:'Pre-bike: whey + banana · Post-lift: whey + 30g rice', kcal:340 },
+    ]},
+  { label:'Fri 5/1', type:'MOD', training:'Rodagem Corrida/Caminhada 54min', kcal:2030, p:194, c:88, f:92,
+    meals: [
+      { icon:'🥛', type:'Breakfast', desc:'3 eggs + 200g Greek yogurt + 10g chia + coffee', kcal:400 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g sweet potato', kcal:620 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl + 50g quinoa', kcal:560 },
+      { icon:'🥚', type:'Snacks', desc:'Pre-run: whey + banana · Mid: 2 boiled eggs + 20g almonds', kcal:450 },
+    ]},
+  { label:'Sat 5/2', type:'HARD', training:'Long Run 76min · TL 143 · LT1 zones', kcal:2240, p:215, c:160, f:90,
+    meals: [
+      { icon:'🍌', type:'Pre-run', desc:'Banana + 1 scoop whey · 1 gel @ 45 min', kcal:180 },
+      { icon:'🍳', type:'Post-run Breakfast', desc:'4 eggs + 100g rice + 50g black beans + salsa + coffee', kcal:560 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g rice + 30g black beans', kcal:680 },
+      { icon:'🍗', type:'Dinner', desc:'Chicken bowl + 80g rice + ½ avocado', kcal:680 },
+      { icon:'🥛', type:'Snack', desc:'200g yogurt + 10g walnuts', kcal:140 },
+    ]},
+  { label:'Sun 5/3', type:'MOD', training:'DESCANSO (TP) · Lower Body 15 sets (COROS)', kcal:2050, p:210, c:100, f:88,
+    meals: [
+      { icon:'🥣', type:'Breakfast', desc:'40g oats + 1 scoop whey + 100g ricotta + cinnamon', kcal:490 },
+      { icon:'🥩', type:'Lunch', desc:'Beef bowl + 80g sweet potato (pre-lift, lighter)', kcal:620 },
+      { icon:'🥩', type:'Dinner', desc:'Picanha 250g + roasted veg + 80g sweet potato', kcal:620 },
+      { icon:'⚡', type:'Snacks', desc:'Pre-lift: 150g yogurt + small apple · Post-lift: whey + 40g rice', kcal:320 },
+    ]},
+];
+
+const grid = document.getElementById('day-grid');
+DAYS.forEach(d => {
+  const typeClass = d.type === 'HARD' ? 'dtype-hard' : d.type === 'EASY' ? 'dtype-easy' : 'dtype-mod';
+  const mealsHtml = d.meals.map(m => `
+    <div class="meal-row">
+      <div class="meal-icon">${m.icon}</div>
+      <div class="meal-body">
+        <div class="meal-type">${m.type}</div>
+        <div class="meal-desc">${m.desc}</div>
+        <div class="meal-kcal">${m.kcal} kcal</div>
+      </div>
+    </div>`).join('');
+
+  grid.innerHTML += `
+    <div class="day-card">
+      <div class="day-header">
+        <div>
+          <div class="day-title">${d.label} <span class="${typeClass}">${d.type}</span></div>
+          <div class="day-training">${d.training}</div>
+        </div>
+        <div class="day-kcal">
+          <div class="day-kcal-num">${d.kcal.toLocaleString()}</div>
+          <div class="day-kcal-lbl">kcal target</div>
+        </div>
+      </div>
+      <div class="day-macros">
+        <div class="day-macro"><div class="day-macro-val" style="color:var(--blue)">${d.p}g</div><div class="day-macro-lbl">Protein</div></div>
+        <div class="day-macro"><div class="day-macro-val" style="color:var(--yellow)">${d.c}g</div><div class="day-macro-lbl">Carbs</div></div>
+        <div class="day-macro"><div class="day-macro-val" style="color:var(--red)">${d.f}g</div><div class="day-macro-lbl">Fat</div></div>
+      </div>
+      <div class="meal-list">${mealsHtml}</div>
+    </div>`;
+});
+</script>
+</body>
+</html>
