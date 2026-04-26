@@ -201,15 +201,15 @@
   <div class="card">
     <div class="card-label">Day Strain</div>
     <div class="kpi">
-      <div class="kpi-value color-blue">15.5</div>
+      <div class="kpi-value color-blue">15.8</div>
       <div class="kpi-unit">Today · Max 21</div>
       <div class="kpi-delta color-green">Run complete · 10.4 km · 79 min</div>
     </div>
     <div class="progress-row" style="margin-top:12px">
-      <div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--blue)"></div></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--blue)"></div></div>
     </div>
     <div style="margin-top:14px; font-size:12px; color:var(--muted)">
-      Avg HR today <span style="color:var(--text); font-weight:600">92 bpm</span> · Max <span style="color:var(--text); font-weight:600">175 bpm</span>
+      Avg HR today <span style="color:var(--text); font-weight:600">94 bpm</span> · Max <span style="color:var(--text); font-weight:600">175 bpm</span>
     </div>
     <div class="card-source">WHOOP</div>
   </div>
@@ -239,14 +239,14 @@
   <div class="card">
     <div class="card-label">Performance Management (14 days)</div>
     <div class="fitness-badges">
-      <div class="f-badge"><div class="f-badge-val color-blue">29.8</div><div class="f-badge-lbl">CTL Fitness</div></div>
-      <div class="f-badge"><div class="f-badge-val color-red">43.4</div><div class="f-badge-lbl">ATL Fatigue</div></div>
-      <div class="f-badge"><div class="f-badge-val color-yellow">-7.5</div><div class="f-badge-lbl">TSB Form</div></div>
-      <div class="f-badge"><div class="f-badge-val" style="font-size:16px">273.7</div><div class="f-badge-lbl">TSS this week</div></div>
+      <div class="f-badge"><div class="f-badge-val color-blue">52</div><div class="f-badge-lbl">CTL Fitness</div></div>
+      <div class="f-badge"><div class="f-badge-val color-red">79</div><div class="f-badge-lbl">ATL Fatigue</div></div>
+      <div class="f-badge"><div class="f-badge-val color-yellow">-27</div><div class="f-badge-lbl">TSB Form</div></div>
+      <div class="f-badge"><div class="f-badge-val" style="font-size:16px">468</div><div class="f-badge-lbl">Load/wk</div></div>
     </div>
-    <div class="status-chip">⚡ Tired — absorbing training load</div>
+    <div class="status-chip">⚡ High fatigue — TSB -27, rest & recovery priority</div>
     <div class="chart-wrap"><canvas id="pmcChart"></canvas></div>
-    <div class="card-source">TrainingPeaks</div>
+    <div class="card-source">COROS</div>
   </div>
 
   <!-- Weekly workouts -->
@@ -369,7 +369,7 @@
 </div>
 
 <div style="padding: 16px 28px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px;">
-  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 4:15 PM ET
+  Data sources: WHOOP · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 4:30 PM ET
 </div>
 
 <script>
@@ -391,19 +391,19 @@ new Chart(document.getElementById('pmcChart'), {
     datasets: [
       {
         label: 'CTL (Fitness)',
-        data: [24.6,25.6,25.0,25.3,25.5,26.7,26.6,27.9,27.7,27.0,28.1,27.4,28.3,28.3,29.8],
+        data: [41,45,44,44,43,44,44,49,49,48,49,47,49,48,52],
         borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)',
         borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
       },
       {
         label: 'ATL (Fatigue)',
-        data: [24.9,31.0,26.6,28.1,28.6,35.6,33.9,40.3,37.4,32.0,37.5,32.1,37.0,35.8,43.4],
+        data: [34,56,48,48,43,51,48,77,72,62,65,56,64,59,79],
         borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)',
         borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
       },
       {
         label: 'TSB (Form)',
-        data: [-3.8,-0.2,-5.4,-1.5,-2.8,-3.2,-8.9,-7.2,-12.4,-9.7,-5.0,-9.4,-4.7,-8.7,-7.5],
+        data: [7,-11,-4,-4,0,-7,-4,-28,-23,-14,-16,-9,-15,-11,-27],
         borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.05)',
         borderWidth: 2, pointRadius: 3, tension: 0.4, yAxisID: 'y2', fill: false,
         borderDash: [5,3]
@@ -437,7 +437,7 @@ new Chart(document.getElementById('trendChart'), {
       },
       {
         label: 'Strain',
-        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, 15.5],
+        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, 15.8],
         type: 'line',
         borderColor: '#3b82f6', backgroundColor: 'transparent',
         borderWidth: 2.5, pointRadius: 4, tension: 0.4, yAxisID: 'y2'
