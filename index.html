@@ -166,16 +166,16 @@
   <div class="card">
     <div class="card-label">Recovery Score</div>
     <div class="kpi">
-      <div class="kpi-value color-yellow">68<span style="font-size:24px">%</span></div>
+      <div class="kpi-value color-yellow">50<span style="font-size:24px">%</span></div>
       <div class="kpi-unit">Moderate recovery</div>
-      <div class="kpi-delta color-muted">WHOOP sync unavailable</div>
+      <div class="kpi-delta color-muted">SpO₂ 96.1% · skin temp 33.9°C</div>
     </div>
     <div class="progress-row">
-      <div class="progress-bar"><div class="progress-fill" style="width:68%;background:var(--yellow)"></div></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--yellow)"></div></div>
     </div>
     <div class="hrv-row" style="margin-top:14px">
-      <div class="hrv-val">33.4</div>
-      <div class="hrv-unit">HRV ms · RHR 80 bpm</div>
+      <div class="hrv-val">29.9</div>
+      <div class="hrv-unit">HRV ms · RHR 78 bpm</div>
     </div>
     <div class="card-source">WHOOP</div>
   </div>
@@ -184,15 +184,15 @@
   <div class="card">
     <div class="card-label">Sleep Performance</div>
     <div class="kpi">
-      <div class="kpi-value color-green">81<span style="font-size:24px">%</span></div>
-      <div class="kpi-unit">8h 13m in bed · 9 cycles</div>
-      <div class="kpi-delta color-green">Efficiency 89.5%</div>
+      <div class="kpi-value color-green">72<span style="font-size:24px">%</span></div>
+      <div class="kpi-unit">6h 13m in bed · 4 cycles</div>
+      <div class="kpi-delta color-green">Efficiency 89.2%</div>
     </div>
     <div class="sleep-stages" style="margin-top:14px">
-      <div class="stage"><div class="stage-val color-blue">3.7h</div><div class="stage-lbl">Light</div></div>
-      <div class="stage"><div class="stage-val color-purple">1.97h</div><div class="stage-lbl">Deep</div></div>
-      <div class="stage"><div class="stage-val color-teal">2.56h</div><div class="stage-lbl">REM</div></div>
-      <div class="stage"><div class="stage-val color-red">0.97h</div><div class="stage-lbl">Awake</div></div>
+      <div class="stage"><div class="stage-val color-blue">3.1h</div><div class="stage-lbl">Light</div></div>
+      <div class="stage"><div class="stage-val color-purple">1.3h</div><div class="stage-lbl">Deep</div></div>
+      <div class="stage"><div class="stage-val color-teal">1.1h</div><div class="stage-lbl">REM</div></div>
+      <div class="stage"><div class="stage-val color-red">0.7h</div><div class="stage-lbl">Awake</div></div>
     </div>
     <div class="card-source">WHOOP</div>
   </div>
@@ -201,15 +201,15 @@
   <div class="card">
     <div class="card-label">Day Strain</div>
     <div class="kpi">
-      <div class="kpi-value color-blue">6.2</div>
+      <div class="kpi-value color-blue">0.1</div>
       <div class="kpi-unit">Today (so far) · Max 21</div>
-      <div class="kpi-delta color-muted">WHOOP sync unavailable</div>
+      <div class="kpi-delta color-muted">Run planned — strain will rise</div>
     </div>
     <div class="progress-row" style="margin-top:12px">
-      <div class="progress-bar"><div class="progress-fill" style="width:29%;background:var(--blue)"></div></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:1%;background:var(--blue)"></div></div>
     </div>
     <div style="margin-top:14px; font-size:12px; color:var(--muted)">
-      Avg HR today <span style="color:var(--text); font-weight:600">85 bpm</span> · Max <span style="color:var(--text); font-weight:600">146 bpm</span>
+      Avg HR today <span style="color:var(--text); font-weight:600">77 bpm</span> · Max <span style="color:var(--text); font-weight:600">113 bpm</span>
     </div>
     <div class="card-source">WHOOP</div>
   </div>
@@ -218,12 +218,12 @@
   <div class="card">
     <div class="card-label">Nutrition Today</div>
     <div class="kpi">
-      <div class="kpi-value color-orange">0</div>
-      <div class="kpi-unit">kcal · 0 meals logged</div>
+      <div class="kpi-value color-orange">350</div>
+      <div class="kpi-unit">kcal · 1 meal logged</div>
     </div>
     <div class="macros">
       <div class="macro"><div class="macro-val color-blue">0g</div><div class="macro-lbl">Protein</div></div>
-      <div class="macro"><div class="macro-val color-yellow">0g</div><div class="macro-lbl">Carbs</div></div>
+      <div class="macro"><div class="macro-val color-yellow">85g</div><div class="macro-lbl">Carbs</div></div>
       <div class="macro"><div class="macro-val color-red">0g</div><div class="macro-lbl">Fat</div></div>
     </div>
     <div class="water-note" style="margin-top:10px">💧 No water logged today</div>
@@ -322,16 +322,21 @@
   <div class="card">
     <div class="card-label">Today's Meals</div>
     <div class="meal-list">
-      <div style="padding: 20px 10px; text-align:center; color:var(--muted); font-size:13px">
-        No meals logged today
+      <div class="meal-item">
+        <div class="workout-dot" style="background:var(--purple)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Pre/During Run Fueling</div>
+          <div class="workout-meta">Snack · 09:44 UTC · Celsius + Naak gel + Naak Boost</div>
+        </div>
+        <div class="workout-tss" style="color:var(--orange)">350 kcal</div>
       </div>
     </div>
     <div style="margin-top:14px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border)">
       <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px">Daily Totals</div>
       <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:8px; text-align:center">
-        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">0</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">350</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
         <div><div style="font-size:22px; font-weight:800; color:var(--blue)">0g</div><div style="font-size:10px; color:var(--muted)">protein</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">0g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">85g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
         <div><div style="font-size:22px; font-weight:800; color:var(--red)">0g</div><div style="font-size:10px; color:var(--muted)">fat</div></div>
       </div>
     </div>
@@ -348,7 +353,7 @@
 </div>
 
 <div style="padding: 16px 28px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px;">
-  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 8:00 AM ET (scheduled run) · WHOOP sync unavailable
+  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 8:00 AM ET (scheduled run)
 </div>
 
 <script>
@@ -407,7 +412,7 @@ new Chart(document.getElementById('trendChart'), {
     datasets: [
       {
         label: 'Recovery %',
-        data: [55, 36, 69, 61, 39, 68, null],
+        data: [55, 36, 69, 61, 39, 68, 50],
         backgroundColor: ctx => {
           const v = ctx.raw;
           return v >= 67 ? 'rgba(34,197,94,0.7)' : v >= 34 ? 'rgba(234,179,8,0.7)' : 'rgba(239,68,68,0.7)';
@@ -416,14 +421,14 @@ new Chart(document.getElementById('trendChart'), {
       },
       {
         label: 'Strain',
-        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, null],
+        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, 0.1],
         type: 'line',
         borderColor: '#3b82f6', backgroundColor: 'transparent',
         borderWidth: 2.5, pointRadius: 4, tension: 0.4, yAxisID: 'y2'
       },
       {
         label: 'Sleep %',
-        data: [81, 33, 75, 78, 75, 81, null],
+        data: [81, 33, 75, 78, 75, 81, 72],
         type: 'line',
         borderColor: '#a855f7', backgroundColor: 'transparent',
         borderWidth: 2, pointRadius: 4, tension: 0.4, yAxisID: 'y', borderDash: [4,3]
