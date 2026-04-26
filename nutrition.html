@@ -146,7 +146,7 @@
 <header>
   <div>
     <div class="title">Nutrition Tracker</div>
-    <div class="subtitle">April 26, 2026 · 1 meal logged</div>
+    <div class="subtitle">April 26, 2026 · 2 meals logged</div>
   </div>
 </header>
 
@@ -161,23 +161,23 @@
   <div class="grid4">
     <div class="card">
       <div class="card-label">Calories</div>
-      <div class="kpi-big" style="color:var(--orange)">350</div>
+      <div class="kpi-big" style="color:var(--orange)">876</div>
       <div class="kpi-sub">kcal today</div>
     </div>
     <div class="card">
       <div class="card-label">Protein</div>
-      <div class="kpi-big" style="color:var(--blue)">0<span style="font-size:22px">g</span></div>
-      <div class="kpi-sub">0% of calories</div>
+      <div class="kpi-big" style="color:var(--blue)">66<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">30% of calories</div>
     </div>
     <div class="card">
       <div class="card-label">Carbs</div>
-      <div class="kpi-big" style="color:var(--yellow)">85<span style="font-size:22px">g</span></div>
-      <div class="kpi-sub">97% of calories</div>
+      <div class="kpi-big" style="color:var(--yellow)">93<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">42% of calories</div>
     </div>
     <div class="card">
       <div class="card-label">Fat</div>
-      <div class="kpi-big" style="color:var(--red)">0<span style="font-size:22px">g</span></div>
-      <div class="kpi-sub">0% of calories</div>
+      <div class="kpi-big" style="color:var(--red)">23<span style="font-size:22px">g</span></div>
+      <div class="kpi-sub">23% of calories</div>
     </div>
   </div>
 
@@ -189,16 +189,16 @@
         <div style="width:160px;height:160px;flex-shrink:0"><canvas id="macroDonut"></canvas></div>
         <div style="flex:1">
           <div class="macro-row">
-            <div class="macro-top"><span class="macro-lbl" style="color:var(--blue)">Protein</span><span class="macro-val">0g · 0 kcal</span></div>
-            <div class="bar"><div class="bar-fill" style="width:0%;background:var(--blue)"></div></div>
+            <div class="macro-top"><span class="macro-lbl" style="color:var(--blue)">Protein</span><span class="macro-val">66g · 264 kcal</span></div>
+            <div class="bar"><div class="bar-fill" style="width:30%;background:var(--blue)"></div></div>
           </div>
           <div class="macro-row">
-            <div class="macro-top"><span class="macro-lbl" style="color:var(--yellow)">Carbs</span><span class="macro-val">85g · 340 kcal</span></div>
-            <div class="bar"><div class="bar-fill" style="width:97%;background:var(--yellow)"></div></div>
+            <div class="macro-top"><span class="macro-lbl" style="color:var(--yellow)">Carbs</span><span class="macro-val">93g · 372 kcal</span></div>
+            <div class="bar"><div class="bar-fill" style="width:42%;background:var(--yellow)"></div></div>
           </div>
           <div class="macro-row">
-            <div class="macro-top"><span class="macro-lbl" style="color:var(--red)">Fat</span><span class="macro-val">0g · 0 kcal</span></div>
-            <div class="bar"><div class="bar-fill" style="width:0%;background:var(--red)"></div></div>
+            <div class="macro-top"><span class="macro-lbl" style="color:var(--red)">Fat</span><span class="macro-val">23g · 203 kcal</span></div>
+            <div class="bar"><div class="bar-fill" style="width:23%;background:var(--red)"></div></div>
           </div>
           <div style="margin-top:14px;padding:10px;background:rgba(99,102,241,0.08);border-radius:8px;border:1px solid rgba(99,102,241,0.2)">
             <div style="font-size:11px;color:var(--muted)">No daily targets set</div>
@@ -239,6 +239,21 @@
         <span class="m-chip m-fat">0g fat</span>
       </div>
       <div class="meal-notes">Celsius ~10 kcal · Naak gel ~100 kcal / 25g C · Naak Boost mix ~240 kcal / 60g C + electrolytes</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-top">
+        <span class="meal-type-badge badge-snack">Snack</span>
+        <span class="meal-time">12:52 UTC</span>
+      </div>
+      <div class="meal-name">Post-Run Recovery — 4 eggs · 70g cottage cheese · 1 scoop whey · creatine + collagen</div>
+      <div class="meal-macros">
+        <span class="m-chip m-cal">526 kcal</span>
+        <span class="m-chip m-pro">66g protein</span>
+        <span class="m-chip m-carb">8g carbs</span>
+        <span class="m-chip m-fat">22.5g fat</span>
+      </div>
+      <div class="meal-notes">4 eggs · Hood cottage cheese 70g · Gold Standard Whey 1 scoop · Orgain Creatine 4 scoops + Creatine+Collagen 1 scoop</div>
     </div>
   </div>
 
@@ -459,7 +474,7 @@ new Chart(document.getElementById('macroDonut'), {
   type: 'doughnut',
   data: {
     labels: ['Protein', 'Carbs', 'Fat'],
-    datasets: [{ data: [0, 340, 0], backgroundColor: ['rgba(59,130,246,0.8)','rgba(234,179,8,0.8)','rgba(239,68,68,0.8)'], borderWidth: 0, hoverOffset: 4 }]
+    datasets: [{ data: [264, 372, 203], backgroundColor: ['rgba(59,130,246,0.8)','rgba(234,179,8,0.8)','rgba(239,68,68,0.8)'], borderWidth: 0, hoverOffset: 4 }]
   },
   options: {
     responsive: true, maintainAspectRatio: true, cutout: '72%',
@@ -480,7 +495,7 @@ const PLAN = [
 ];
 // Actual logged data — keyed by date label, filled as meals are logged
 const ACTUAL = {
-  'Apr 26': { kcal: 350, p: 0, c: 85, f: 0 },
+  'Apr 26': { kcal: 876, p: 66, c: 93, f: 22.5 },
 };
 
 const labels = PLAN.map(d => d.date);
