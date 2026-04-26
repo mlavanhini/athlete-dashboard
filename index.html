@@ -201,15 +201,15 @@
   <div class="card">
     <div class="card-label">Day Strain</div>
     <div class="kpi">
-      <div class="kpi-value color-blue">15.7</div>
+      <div class="kpi-value color-blue">15.5</div>
       <div class="kpi-unit">Today · Max 21</div>
       <div class="kpi-delta color-green">Run complete · 10.4 km · 79 min</div>
     </div>
     <div class="progress-row" style="margin-top:12px">
-      <div class="progress-bar"><div class="progress-fill" style="width:75%;background:var(--blue)"></div></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:74%;background:var(--blue)"></div></div>
     </div>
     <div style="margin-top:14px; font-size:12px; color:var(--muted)">
-      Avg HR today <span style="color:var(--text); font-weight:600">93 bpm</span> · Max <span style="color:var(--text); font-weight:600">175 bpm</span>
+      Avg HR today <span style="color:var(--text); font-weight:600">92 bpm</span> · Max <span style="color:var(--text); font-weight:600">175 bpm</span>
     </div>
     <div class="card-source">WHOOP</div>
   </div>
@@ -218,13 +218,13 @@
   <div class="card">
     <div class="card-label">Nutrition Today</div>
     <div class="kpi">
-      <div class="kpi-value color-orange">876</div>
-      <div class="kpi-unit">kcal · 2 meals logged</div>
+      <div class="kpi-value color-orange">1236</div>
+      <div class="kpi-unit">kcal · 3 meals logged</div>
     </div>
     <div class="macros">
-      <div class="macro"><div class="macro-val color-blue">66g</div><div class="macro-lbl">Protein</div></div>
-      <div class="macro"><div class="macro-val color-yellow">93g</div><div class="macro-lbl">Carbs</div></div>
-      <div class="macro"><div class="macro-val color-red">23g</div><div class="macro-lbl">Fat</div></div>
+      <div class="macro"><div class="macro-val color-blue">114g</div><div class="macro-lbl">Protein</div></div>
+      <div class="macro"><div class="macro-val color-yellow">123g</div><div class="macro-lbl">Carbs</div></div>
+      <div class="macro"><div class="macro-val color-red">33g</div><div class="macro-lbl">Fat</div></div>
     </div>
     <div class="water-note" style="margin-top:10px">💧 No water logged today</div>
     <div class="card-source">Nutrition MCP</div>
@@ -338,14 +338,22 @@
         </div>
         <div class="workout-tss" style="color:var(--orange)">526 kcal</div>
       </div>
+      <div class="meal-item">
+        <div class="workout-dot" style="background:var(--green)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Beef Bowl</div>
+          <div class="workout-meta">Lunch · 16:38 UTC · 200g ground beef 90/10 + 80g white rice + 30g pinto beans</div>
+        </div>
+        <div class="workout-tss" style="color:var(--orange)">360 kcal</div>
+      </div>
     </div>
     <div style="margin-top:14px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border)">
       <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px">Daily Totals</div>
       <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:8px; text-align:center">
-        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">876</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--blue)">66g</div><div style="font-size:10px; color:var(--muted)">protein</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">93g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
-        <div><div style="font-size:22px; font-weight:800; color:var(--red)">23g</div><div style="font-size:10px; color:var(--muted)">fat</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--orange)">1236</div><div style="font-size:10px; color:var(--muted)">kcal</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--blue)">114g</div><div style="font-size:10px; color:var(--muted)">protein</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--yellow)">123g</div><div style="font-size:10px; color:var(--muted)">carbs</div></div>
+        <div><div style="font-size:22px; font-weight:800; color:var(--red)">33g</div><div style="font-size:10px; color:var(--muted)">fat</div></div>
       </div>
     </div>
     <div class="card-source">Nutrition MCP</div>
@@ -361,7 +369,7 @@
 </div>
 
 <div style="padding: 16px 28px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px;">
-  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 1:15 PM ET
+  Data sources: WHOOP · TrainingPeaks · COROS · Nutrition MCP &nbsp;·&nbsp; Last refreshed: April 26, 2026 at 3:45 PM ET
 </div>
 
 <script>
@@ -429,7 +437,7 @@ new Chart(document.getElementById('trendChart'), {
       },
       {
         label: 'Strain',
-        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, 15.7],
+        data: [9.3, 2.4, 10.0, 4.0, 13.8, 6.2, 15.5],
         type: 'line',
         borderColor: '#3b82f6', backgroundColor: 'transparent',
         borderWidth: 2.5, pointRadius: 4, tension: 0.4, yAxisID: 'y2'
