@@ -118,7 +118,7 @@
 <header>
   <div>
     <div class="title">Training Calendar</div>
-    <div class="subtitle">TrainingPeaks + COROS · Updated April 27, 2026</div>
+    <div class="subtitle">TrainingPeaks + COROS · Updated April 29, 2026</div>
   </div>
 </header>
 
@@ -211,17 +211,17 @@ const WORKOUTS = {
       desc:'Rodagem em ritmo leve/confortável para acúmulo de volume e desenvolvimento do LT1.' },
   ],
   '2026-04-27': [
-    { name:'Rodagem + Strides', type:'planned', sport:'run', tss:40, dist:null, dur:38, source:'TP',
+    { name:'Rodagem + Strides', type:'completed', sport:'run', tss:40, dist:5.5, dur:47, source:'TP+COROS',
       desc:'Rodagem com estímulos (Strides) ao final. Acumulação de volume com trabalho de eficiência neuromuscular e economia de movimento.' },
-    { name:'Upper Body · 33 sets', type:'planned', sport:'strength', tss:null, dist:null, dur:null, source:'COROS',
+    { name:'Upper Body · 33 sets', type:'completed', sport:'strength', tss:null, dist:null, dur:36, source:'COROS',
       desc:'Chest press · Shoulder press · Back ext · Cable row · Pec deck · Side plank · Biceps · Triceps · Trunk rotations · Crunch. 33 sets total.' },
   ],
   '2026-04-28': [
-    { name:'Giro Regenerativo', type:'planned', sport:'bike', tss:40, dist:null, dur:60, source:'TP',
+    { name:'Giro Regenerativo', type:'completed', sport:'bike', tss:20, dist:12.3, dur:31, source:'TP+COROS',
       desc:'Treino regenerativo para manter o corpo em movimento e aumentar a circulação de oxigênio para os músculos.' },
   ],
   '2026-04-29': [
-    { name:'Tempo Run', type:'planned', sport:'run', tss:55, dist:null, dur:44, source:'TP',
+    { name:'Tempo Run', type:'completed', sport:'run', tss:57, dist:7.0, dur:50, source:'TP+COROS',
       desc:'Treinos em Tempo, intensidades acima do LT1 e abaixo do LT2. Melhora resistência muscular, economia de movimento e eleva os limiares.' },
   ],
   '2026-04-30': [
@@ -253,7 +253,7 @@ const SPORT_ICONS = { run:'🏃', bike:'🚴', strength:'💪', soccer:'⚽', re
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 let viewYear = 2026, viewMonth = 3; // 0-indexed, April = 3
-const TODAY = '2026-04-27';
+const TODAY = '2026-04-29';
 
 function pad(n) { return String(n).padStart(2,'0'); }
 function dateKey(y,m,d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
