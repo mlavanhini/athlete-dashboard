@@ -174,8 +174,8 @@
       <div class="progress-bar"><div class="progress-fill" style="width:71%;background:var(--green)"></div></div>
     </div>
     <div class="hrv-row" style="margin-top:14px">
-      <div class="hrv-val">40.1</div>
-      <div class="hrv-unit">HRV ms · RHR 76 bpm</div>
+      <div class="hrv-val">43</div>
+      <div class="hrv-unit">HRV ms (COROS) · RHR 55 bpm</div>
     </div>
     <div class="card-source">WHOOP</div>
   </div>
@@ -239,12 +239,12 @@
   <div class="card">
     <div class="card-label">Performance Management (14 days)</div>
     <div class="fitness-badges">
-      <div class="f-badge"><div class="f-badge-val color-blue">30.3</div><div class="f-badge-lbl">CTL Fitness</div></div>
-      <div class="f-badge"><div class="f-badge-val color-red">41.7</div><div class="f-badge-lbl">ATL Fatigue</div></div>
-      <div class="f-badge"><div class="f-badge-val color-yellow">-11.4</div><div class="f-badge-lbl">TSB Form</div></div>
-      <div class="f-badge"><div class="f-badge-val" style="font-size:16px">~350</div><div class="f-badge-lbl">Load/wk</div></div>
+      <div class="f-badge"><div class="f-badge-val color-blue">31.3</div><div class="f-badge-lbl">CTL Fitness</div></div>
+      <div class="f-badge"><div class="f-badge-val color-red">46.5</div><div class="f-badge-lbl">ATL Fatigue</div></div>
+      <div class="f-badge"><div class="f-badge-val color-yellow">-13.6</div><div class="f-badge-lbl">TSB Form</div></div>
+      <div class="f-badge"><div class="f-badge-val" style="font-size:16px">~355</div><div class="f-badge-lbl">Load/wk</div></div>
     </div>
-    <div class="status-chip">⚡ Tired — TSB -11.4, Tempo Run done, recovering from training block</div>
+    <div class="status-chip">⚡ Very Tired — TSB -13.6, Tempo Run done, high fatigue building</div>
     <div class="chart-wrap"><canvas id="pmcChart"></canvas></div>
     <div class="card-source">TrainingPeaks</div>
   </div>
@@ -259,7 +259,15 @@
           <div class="workout-name">Rodagem + Strides</div>
           <div class="workout-meta">Apr 27 · completed · 47 min · 5.5km · HR 154</div>
         </div>
-        <div class="workout-tss">40 TSS</div>
+        <div class="workout-tss">47 TSS</div>
+      </div>
+      <div class="workout-item">
+        <div class="workout-dot" style="background:var(--purple)"></div>
+        <div class="workout-info">
+          <div class="workout-name">Upper Body · 33 sets</div>
+          <div class="workout-meta">Apr 27 · completed · strength · 36 min</div>
+        </div>
+        <div class="workout-tss">24 TSS</div>
       </div>
       <div class="workout-item">
         <div class="workout-dot" style="background:var(--green)"></div>
@@ -267,7 +275,7 @@
           <div class="workout-name">Giro Regenerativo</div>
           <div class="workout-meta">Apr 28 · completed · 31 min · 12.3km · HR 132</div>
         </div>
-        <div class="workout-tss">~20 TSS</div>
+        <div class="workout-tss">25 TSS</div>
       </div>
       <div class="workout-item">
         <div class="workout-dot" style="background:var(--green)"></div>
@@ -275,7 +283,7 @@
           <div class="workout-name">Tempo Run</div>
           <div class="workout-meta">Apr 29 · completed · 50 min · 7.0km · HR 160</div>
         </div>
-        <div class="workout-tss">~57 TSS</div>
+        <div class="workout-tss">~61 TSS</div>
       </div>
       <div class="workout-item">
         <div class="workout-dot" style="background:var(--accent)"></div>
@@ -385,7 +393,7 @@
 </div>
 
 <div style="padding: 16px 28px; color: var(--muted); font-size: 11px; border-top: 1px solid var(--border); margin-top: 8px;">
-  Data sources: WHOOP · COROS · TrainingPeaks &nbsp;·&nbsp; Last refreshed: April 29, 2026 at 11:00 AM ET
+  Data sources: WHOOP · COROS · TrainingPeaks &nbsp;·&nbsp; Last refreshed: April 29, 2026 at 11:15 AM ET
 </div>
 
 <script>
@@ -407,19 +415,19 @@ new Chart(document.getElementById('pmcChart'), {
     datasets: [
       {
         label: 'CTL (Fitness)',
-        data: [25.5,26.7,26.6,27.9,27.7,27.0,28.1,27.4,28.3,28.3,29.8,30.0,29.7,30.3],
+        data: [25.5,26.7,26.6,27.9,27.7,27.0,28.1,27.4,28.3,28.3,29.8,30.7,30.6,31.3],
         borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)',
         borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
       },
       {
         label: 'ATL (Fatigue)',
-        data: [28.6,35.6,33.9,40.3,37.4,32.0,37.5,32.1,37.0,35.8,43.4,42.9,39.3,41.7],
+        data: [28.6,35.6,33.9,40.3,37.4,32.0,37.5,32.1,37.0,35.8,43.4,47.3,44.2,46.5],
         borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.06)',
         borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true
       },
       {
         label: 'TSB (Form)',
-        data: [-2.8,-3.2,-8.9,-7.2,-12.4,-9.7,-5.0,-9.4,-4.7,-8.7,-7.5,-13.7,-9.6,-11.4],
+        data: [-2.8,-3.2,-8.9,-7.2,-12.4,-9.7,-5.0,-9.4,-4.7,-8.7,-7.5,-13.7,-16.6,-13.6],
         borderColor: '#eab308', backgroundColor: 'rgba(234,179,8,0.05)',
         borderWidth: 2, pointRadius: 3, tension: 0.4, yAxisID: 'y2', fill: false,
         borderDash: [5,3]
