@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Marcelo · Todos</title>
-<script src="https://accounts.google.com/gsi/client" async></script>
-<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js" async></script>
 <style>
 :root {
   --bg: #0d0f14; --card: #161a23; --border: #252b38;
@@ -33,13 +31,15 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .btn-primary:hover { background: #4f52d8; border-color: #4f52d8; }
 .btn-sm { padding: 4px 10px; font-size: 12px; }
 
-.int-bar { display: flex; gap: 8px; padding: 10px 28px; border-bottom: 1px solid var(--border); background: rgba(22,26,35,0.5); flex-wrap: wrap; align-items: center; }
-.int-pill { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid; cursor: pointer; transition: all 0.15s; }
-.int-pill:hover { opacity: 0.8; }
-.int-on  { color: var(--green);  border-color: rgba(34,197,94,0.3);  background: rgba(34,197,94,0.08); }
-.int-off { color: var(--muted);  border-color: rgba(255,255,255,0.1); background: transparent; }
-.int-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-.int-label { font-size: 11px; color: var(--muted); }
+/* Sync status bar */
+.sync-bar { display: flex; gap: 8px; padding: 9px 28px; border-bottom: 1px solid var(--border); background: rgba(22,26,35,0.6); flex-wrap: wrap; align-items: center; }
+.sync-chip { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid; }
+.sync-on  { color: var(--green);  border-color: rgba(34,197,94,0.3);  background: rgba(34,197,94,0.08); }
+.sync-pending { color: var(--yellow); border-color: rgba(234,179,8,0.3); background: rgba(234,179,8,0.08); }
+.sync-off { color: var(--muted);  border-color: rgba(255,255,255,0.1); background: transparent; }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.sync-label { font-size: 11px; color: var(--muted); }
+.sync-time { font-size: 10px; color: var(--muted); margin-left: auto; }
 
 .view-tabs { display: flex; padding: 0 28px; border-bottom: 1px solid var(--border); }
 .view-tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; user-select: none; }
@@ -60,7 +60,7 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .list-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .list-group-name { font-size: 14px; font-weight: 600; }
 .list-group-meta { font-size: 12px; color: var(--muted); }
-.list-chevron { margin-left: auto; color: var(--muted); font-size: 12px; transition: transform 0.15s; }
+.list-chevron { margin-left: auto; color: var(--muted); font-size: 12px; }
 .list-group-body { display: flex; flex-direction: column; gap: 4px; }
 
 .todo-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; transition: border-color 0.15s; }
@@ -82,7 +82,10 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .p-high   { background: rgba(249,115,22,.12); color: var(--orange); }
 .p-medium { background: rgba(234,179,8,.12);  color: var(--yellow); }
 .p-low    { background: rgba(100,116,139,.12); color: var(--muted); }
-.src-chip { font-size: 10px; color: var(--muted); padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.04); }
+.src-chip { font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+.src-craft  { color: var(--purple); background: rgba(168,85,247,.1); }
+.src-granola { color: var(--teal); background: rgba(20,184,166,.1); }
+.src-recall  { color: var(--blue);  background: rgba(59,130,246,.1); }
 .todo-acts { display: flex; gap: 4px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
 .todo-row:hover .todo-acts { opacity: 1; }
 .act-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; }
@@ -105,8 +108,6 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .kcard.dragging { opacity: 0.4; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
 .kcard-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 8px; }
 .kcard-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.kcard-list-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.kcard-list-name { font-size: 10px; color: var(--muted); }
 .kcard-due { font-size: 11px; margin-top: 6px; }
 .kcol-add { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px dashed var(--border); border-radius: 8px; cursor: pointer; color: var(--muted); font-size: 12px; background: transparent; transition: all 0.15s; }
 .kcol-add:hover { border-color: var(--accent); color: var(--accent); }
@@ -118,6 +119,9 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .month-nav-btns { display: flex; gap: 6px; }
 .month-nav-btns button { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
 .month-nav-btns button:hover { background: rgba(255,255,255,0.08); }
+.cal-legend { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.cal-leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.cal-leg-dot { width: 8px; height: 8px; border-radius: 2px; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .cal-dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; padding: 8px 0; }
 .cal-cell { min-height: 100px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; cursor: pointer; transition: border-color 0.15s; }
@@ -128,16 +132,18 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .cal-day-num { font-size: 13px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
 .today-badge { font-size: 9px; font-weight: 700; background: var(--accent); color: #fff; border-radius: 4px; padding: 1px 5px; text-transform: uppercase; }
 .cal-pill { font-size: 10px; font-weight: 500; border-radius: 4px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-.cal-ext-event { font-size: 10px; border-radius: 4px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(59,130,246,0.12); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+.cal-ext { font-size: 10px; border-radius: 4px; padding: 2px 5px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-ext-gcal { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+.cal-ext-outlook { background: rgba(59,130,246,.12); color: var(--blue); border: 1px solid rgba(59,130,246,.2); }
 
 /* MODALS */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
 .overlay.open { display: flex; }
 .modal { background: var(--card); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-.modal-lg { max-width: 640px; }
+.modal-lg { max-width: 620px; }
 .modal-hdr { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
 .modal-hdr h2 { font-size: 16px; font-weight: 700; }
-.modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
 .modal-close:hover { color: var(--text); }
 .modal-body { padding: 18px 24px; display: flex; flex-direction: column; gap: 14px; }
 .modal-footer { padding: 0 24px 20px; display: flex; gap: 8px; justify-content: flex-end; }
@@ -148,15 +154,15 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 .finput::placeholder { color: var(--muted); }
 textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
 .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.fhint { font-size: 11px; color: var(--muted); }
+.fhint { font-size: 11px; color: var(--muted); line-height: 1.5; }
 
-/* Settings sections */
-.stitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.ssec { margin-bottom: 18px; }
+/* Sync queue info box */
+.queue-info { background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 12px 14px; font-size: 13px; line-height: 1.6; }
+.queue-info strong { color: var(--accent); }
 
 /* Import */
-.import-paste-area { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
-.import-paste-area textarea { width: 100%; min-height: 160px; background: none; border: none; color: var(--text); font-size: 13px; outline: none; resize: vertical; font-family: inherit; padding: 10px 12px; }
+.import-paste-area { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; }
+.import-paste-area textarea { width: 100%; min-height: 150px; background: none; border: none; color: var(--text); font-size: 13px; outline: none; resize: vertical; font-family: inherit; padding: 10px 12px; }
 .import-results { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; max-height: 200px; overflow-y: auto; }
 .import-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.2); border-radius: 8px; font-size: 13px; }
 .import-item input[type=checkbox] { margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
@@ -165,18 +171,19 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
 .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 10px; color: var(--muted); text-align: center; }
 .empty-icon { font-size: 40px; opacity: 0.35; }
 .empty-title { font-size: 15px; font-weight: 600; color: var(--text); }
-.empty-desc { font-size: 13px; max-width: 320px; }
 
 /* Toast */
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 999; animation: slideUp .2s ease; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 999; animation: slideUp .2s ease; max-width: 320px; }
+.toast.success { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: var(--green); }
+.toast.pending { background: rgba(234,179,8,0.12); border-color: rgba(234,179,8,0.25); color: var(--yellow); }
 @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 @media (max-width: 768px) {
-  .nav { padding: 8px 16px; }
-  .nav a { padding: 6px 10px; font-size: 12px; }
+  .nav { padding: 8px 16px; overflow-x: auto; flex-wrap: nowrap; }
+  .nav a { padding: 6px 10px; font-size: 12px; white-space: nowrap; }
   header { padding: 12px 16px; }
   .header-actions .btn span { display: none; }
-  .int-bar { padding: 8px 16px; }
+  .sync-bar { padding: 8px 16px; }
   .view-tabs { padding: 0 16px; }
   .toolbar { padding: 10px 16px; }
   .list-panel, .cal-panel { padding: 14px 16px; }
@@ -207,17 +214,20 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
   <div class="header-actions">
     <button class="btn" onclick="openImport('granola')">📋 <span>Granola</span></button>
     <button class="btn" onclick="openImport('recall')">🎙 <span>Recall AI</span></button>
-    <button class="btn" onclick="openSettings()">⚙️</button>
+    <button class="btn" onclick="openSyncInfo()">↻ <span>Sync</span></button>
     <button class="btn btn-primary" onclick="openAdd(null)">+ New Todo</button>
   </div>
 </header>
 
-<div class="int-bar">
-  <span class="int-label">Integrations:</span>
-  <div class="int-pill int-off" id="int-google"  onclick="connectGoogle()"><div class="int-dot"></div> <span id="int-google-lbl">Connect Google Calendar</span></div>
-  <div class="int-pill int-off" id="int-outlook" onclick="connectOutlook()"><div class="int-dot"></div> <span id="int-outlook-lbl">Connect Outlook</span></div>
-  <div class="int-pill int-off" id="int-recall"  onclick="openSettings()"><div class="int-dot"></div> <span id="int-recall-lbl">Recall AI</span></div>
-  <div class="int-pill int-off" id="int-granola" onclick="openImport('granola')"><div class="int-dot"></div> Granola Import</div>
+<!-- Sync status bar — powered by MCP data files -->
+<div class="sync-bar">
+  <span class="sync-label">MCP Sync:</span>
+  <div class="sync-chip sync-on" id="sync-gcal"><div class="sync-dot"></div> Google Calendar</div>
+  <div class="sync-chip sync-on" id="sync-outlook"><div class="sync-dot"></div> Outlook</div>
+  <div class="sync-chip sync-on" id="sync-craft"><div class="sync-dot"></div> Craft</div>
+  <div class="sync-chip sync-off" id="sync-granola"><div class="sync-dot"></div> Granola</div>
+  <div class="sync-chip sync-off" id="sync-recall"><div class="sync-dot"></div> Recall AI</div>
+  <span class="sync-time" id="sync-time">Synced just now</span>
 </div>
 
 <div class="view-tabs">
@@ -228,7 +238,7 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
 
 <div class="toolbar">
   <div class="search-wrap">
-    <span style="color:var(--muted);font-size:14px">🔍</span>
+    <span style="color:var(--muted)">🔍</span>
     <input type="text" id="q" placeholder="Search todos…" oninput="render()">
   </div>
   <select class="fsel" id="fl" onchange="render()"><option value="">All Lists</option></select>
@@ -248,12 +258,11 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
   </select>
 </div>
 
-<!-- Views -->
 <div id="view-list"     class="list-panel"></div>
 <div id="view-kanban"   class="kanban-panel" style="display:none"></div>
 <div id="view-calendar" class="cal-panel"    style="display:none"></div>
 
-<!-- ── Todo Modal ── -->
+<!-- Add/Edit Todo Modal -->
 <div class="overlay" id="todo-modal">
   <div class="modal">
     <div class="modal-hdr">
@@ -304,14 +313,19 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
           <option value="done">Done</option>
         </select>
       </div>
-      <div id="m-sync" style="display:none;display:flex;flex-direction:column;gap:8px">
-        <label class="flabel">Sync to Calendar</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
-          <input type="checkbox" id="sync-g" style="accent-color:var(--accent)"> Add to Google Calendar
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
-          <input type="checkbox" id="sync-o" style="accent-color:var(--accent)"> Add to Outlook Calendar
-        </label>
+      <div class="fg">
+        <label class="flabel">Add to Calendar</label>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="sync-g" style="accent-color:var(--accent)"> Google Calendar (via MCP queue)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="sync-o" style="accent-color:var(--accent)"> Outlook (via MCP queue)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="sync-c" style="accent-color:var(--accent)"> Save to Craft (via MCP queue)
+          </label>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -321,7 +335,32 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
   </div>
 </div>
 
-<!-- ── Import Modal ── -->
+<!-- Sync Info Modal -->
+<div class="overlay" id="sync-modal">
+  <div class="modal modal-lg">
+    <div class="modal-hdr">
+      <h2>MCP Sync Status</h2>
+      <button class="modal-close" onclick="closeSyncInfo()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="sync-status-detail" class="queue-info">Loading sync status…</div>
+      <div class="queue-info">
+        <strong>How syncing works</strong><br>
+        All calendar integrations run via Claude Code's pre-authenticated MCP connections — no OAuth setup needed.<br><br>
+        • <strong>Reads</strong> (events shown in Calendar view) are fetched from Google Calendar and Outlook by Claude Code and stored in <code style="font-size:10px;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px">data/*.json</code>.<br><br>
+        • <strong>Writes</strong> (creating a todo as a calendar event or Craft task) go into a queue file. To process: tell Claude Code <em>"process the MCP queue"</em> or ask it to <em>"create these todos in Google Calendar"</em>.<br><br>
+        • <strong>Craft tasks</strong> shown here sync natively to your iPhone via iCloud.<br><br>
+        • To <strong>re-sync</strong> calendar data, start a new Claude Code session and say <em>"sync my todo calendar data"</em>.
+      </div>
+      <div id="queue-detail"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeSyncInfo()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
 <div class="overlay" id="import-modal">
   <div class="modal modal-lg">
     <div class="modal-hdr">
@@ -330,9 +369,9 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
     </div>
     <div class="modal-body">
       <div id="imp-granola">
-        <p class="fhint" style="margin-bottom:10px">Paste Granola meeting notes — bullets, numbered lists, and action item phrases are detected automatically.</p>
+        <p class="fhint" style="margin-bottom:10px">Paste your Granola meeting notes — bullets, numbered lists, and action-item phrases are detected.</p>
         <div class="import-paste-area">
-          <textarea id="granola-text" placeholder="Paste Granola notes here…&#10;&#10;Detected patterns:&#10;• Bullet points&#10;1. Numbered lists&#10;Action item: specific tasks&#10;Follow-up on X"></textarea>
+          <textarea id="granola-text" placeholder="Paste Granola notes here…&#10;&#10;Works with:&#10;• Bullet points&#10;1. Numbered lists&#10;Action item: specific tasks&#10;Follow-up on X"></textarea>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px">
           <button class="btn btn-primary" style="flex:1" onclick="parseGranola()">Parse Notes</button>
@@ -340,11 +379,14 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
         </div>
       </div>
       <div id="imp-recall" style="display:none">
-        <p class="fhint" style="margin-bottom:10px">Fetch action items extracted from your Recall AI meeting recordings.</p>
-        <div id="recall-msg" style="font-size:13px;color:var(--muted);padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px">
-          Click below to load recent recordings.
+        <p class="fhint" style="margin-bottom:10px">Paste Recall AI transcript or meeting summary below to extract action items.</p>
+        <div class="import-paste-area">
+          <textarea id="recall-text" placeholder="Paste Recall AI transcript here…"></textarea>
         </div>
-        <button class="btn btn-primary" style="margin-top:10px;width:100%" onclick="fetchRecall()">🎙 Fetch Recordings</button>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-primary" style="flex:1" onclick="parseRecall()">Parse Transcript</button>
+          <button class="btn" onclick="document.getElementById('recall-text').value=''">Clear</button>
+        </div>
       </div>
       <div id="imp-results" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -361,105 +403,40 @@ textarea.finput { resize: vertical; min-height: 72px; font-family: inherit; }
   </div>
 </div>
 
-<!-- ── Settings Modal ── -->
-<div class="overlay" id="settings-modal">
-  <div class="modal modal-lg">
-    <div class="modal-hdr">
-      <h2>Settings & Integrations</h2>
-      <button class="modal-close" onclick="closeSettings()">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <div class="ssec">
-        <div class="stitle">Google Calendar</div>
-        <div class="fg">
-          <label class="flabel">OAuth2 Client ID</label>
-          <input class="finput" id="s-gcid" placeholder="xxxx.apps.googleusercontent.com">
-          <span class="fhint">Google Cloud Console → APIs &amp; Services → Credentials → OAuth 2.0 Client ID (Web application). Add <code style="font-size:10px;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px">this page URL</code> as an Authorised JavaScript Origin.</span>
-        </div>
-        <div class="fg" style="margin-top:10px">
-          <label class="flabel">Calendar ID</label>
-          <input class="finput" id="s-gcal" placeholder="primary">
-        </div>
-      </div>
-
-      <div class="ssec">
-        <div class="stitle">Microsoft Outlook / 365</div>
-        <div class="fg">
-          <label class="flabel">Azure App Client ID</label>
-          <input class="finput" id="s-msid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-          <span class="fhint">Azure Portal → App Registrations → your app → Application (client) ID. Add a <em>Single-page application</em> redirect URI pointing to this page.</span>
-        </div>
-      </div>
-
-      <div class="ssec">
-        <div class="stitle">Recall AI</div>
-        <div class="fg">
-          <label class="flabel">API Key</label>
-          <input type="password" class="finput" id="s-rkey" placeholder="your-recall-api-key">
-        </div>
-        <div class="fg" style="margin-top:10px">
-          <label class="flabel">CORS Proxy URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-          <input class="finput" id="s-rproxy" placeholder="https://your-proxy.example.com/">
-          <span class="fhint">Recall AI blocks direct browser requests. Run a tiny proxy (e.g. <code style="font-size:10px;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px">cors-anywhere</code>) or leave empty to try direct.</span>
-        </div>
-      </div>
-
-      <div class="ssec">
-        <div class="stitle">Todo Lists</div>
-        <div id="s-lists"></div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <input class="finput" id="s-newlist" placeholder="New list name…" style="flex:1">
-          <input type="color" id="s-newcolor" value="#6366f1" style="width:40px;height:38px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;padding:2px">
-          <button class="btn" onclick="addList()">Add</button>
-        </div>
-      </div>
-
-      <div class="ssec">
-        <div class="stitle">Data</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" style="flex:1" onclick="exportJSON()">Export JSON</button>
-          <button class="btn" style="flex:1" onclick="document.getElementById('file-in').click()">Import JSON</button>
-          <input type="file" id="file-in" accept=".json" style="display:none" onchange="importJSON(this)">
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeSettings()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-    </div>
-  </div>
-</div>
-
 <script>
+// ═══════════════════════════════════════════════════════
+// CONFIG — detect if running via server or file://
+// ═══════════════════════════════════════════════════════
+const API = location.protocol === 'file:' ? null : ''   // empty string = same origin
+
 // ═══════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════
-const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2,8)}`
+const uid  = () => `${Date.now()}-${Math.random().toString(36).slice(2,8)}`
 const TODAY = new Date().toISOString().slice(0,10)
-const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+const esc   = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 
 function fmtDate(d) {
   if (!d) return ''
   if (d === TODAY) return 'Today'
-  const next = new Date(TODAY+'T12:00:00'); next.setDate(next.getDate()+1)
-  if (d === next.toISOString().slice(0,10)) return 'Tomorrow'
-  const prev = new Date(TODAY+'T12:00:00'); prev.setDate(prev.getDate()-1)
-  if (d === prev.toISOString().slice(0,10)) return 'Yesterday'
-  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})
+  const t1 = new Date(TODAY+'T12:00:00'), t2 = new Date(d+'T12:00:00')
+  const diff = Math.round((t2-t1)/(1000*86400))
+  if (diff === 1) return 'Tomorrow'
+  if (diff === -1) return 'Yesterday'
+  return t2.toLocaleDateString('en-US',{month:'short',day:'numeric'})
 }
 const isOverdue = d => d && d < TODAY
 const isToday   = d => d === TODAY
 
-function toast(msg) {
+function toast(msg, type='') {
   const el = document.createElement('div')
-  el.className = 'toast'; el.textContent = msg
+  el.className = `toast ${type}`; el.textContent = msg
   document.body.appendChild(el)
-  setTimeout(() => el.remove(), 3000)
+  setTimeout(() => el.remove(), 4000)
 }
 
 // ═══════════════════════════════════════════════════════
-// STORE
+// STORE — localStorage with server backup
 // ═══════════════════════════════════════════════════════
 const DEFAULT_LISTS = [
   { id:'inbox',    name:'Inbox',    color:'#6366f1' },
@@ -469,25 +446,78 @@ const DEFAULT_LISTS = [
 ]
 
 const Store = {
-  getLists()      { return JSON.parse(localStorage.getItem('td-lists') || 'null') || DEFAULT_LISTS },
+  getLists()      { return JSON.parse(localStorage.getItem('td-lists')||'null') || DEFAULT_LISTS },
   saveLists(v)    { localStorage.setItem('td-lists', JSON.stringify(v)) },
-  getTodos()      { return JSON.parse(localStorage.getItem('td-todos') || '[]') },
-  saveTodos(v)    { localStorage.setItem('td-todos', JSON.stringify(v)) },
-  getSettings()   { return JSON.parse(localStorage.getItem('td-settings') || '{}') },
-  saveSettings(v) { localStorage.setItem('td-settings', JSON.stringify(v)) },
-
+  getTodos()      { return JSON.parse(localStorage.getItem('td-todos')||'[]') },
+  saveTodos(v)    {
+    localStorage.setItem('td-todos', JSON.stringify(v))
+    if (API !== null) fetch(`${API}/api/todos`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(v) }).catch(()=>{})
+  },
   add(data) {
     const todos = this.getTodos()
-    const t = { status:'todo', priority:'medium', list:'inbox', source:'manual', ...data, id: uid(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+    const t = { status:'todo', priority:'medium', list:'inbox', source:'manual', ...data, id:uid(), createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() }
     todos.push(t); this.saveTodos(todos); return t
   },
   update(id, patch) {
     const todos = this.getTodos(), i = todos.findIndex(t=>t.id===id)
     if (i<0) return
-    todos[i] = { ...todos[i], ...patch, updatedAt: new Date().toISOString() }
+    todos[i] = { ...todos[i], ...patch, updatedAt:new Date().toISOString() }
     this.saveTodos(todos); return todos[i]
   },
   remove(id) { this.saveTodos(this.getTodos().filter(t=>t.id!==id)) },
+}
+
+// ═══════════════════════════════════════════════════════
+// EXTERNAL CALENDAR EVENTS (fetched from MCP data files via server)
+// ═══════════════════════════════════════════════════════
+let extEvents = []
+
+async function loadExtEvents() {
+  if (API === null) return   // file:// — no server
+  try {
+    const r = await fetch(`${API}/api/events`)
+    if (!r.ok) return
+    const data = await r.json()
+    extEvents = data.map(ev => ({
+      ...ev,
+      _date: (ev.start||'').slice(0,10),
+    }))
+    if (curView==='calendar') renderCal()
+  } catch(e) { console.warn('Could not load calendar events:', e.message) }
+}
+
+async function loadSyncStatus() {
+  if (API === null) return
+  try {
+    const r = await fetch(`${API}/api/sync-status`)
+    if (!r.ok) return
+    const s = await r.json()
+    const t = s.lastSync ? new Date(s.lastSync).toLocaleString() : 'unknown'
+    document.getElementById('sync-time').textContent = `Last synced: ${t}`
+    if (s.pendingGcal || s.pendingOutlook || s.pendingCraft) {
+      const n = (s.pendingGcal||0)+(s.pendingOutlook||0)+(s.pendingCraft||0)
+      document.getElementById('sync-time').textContent += ` · ${n} item(s) queued`
+    }
+  } catch{}
+}
+
+// Queue a create operation for Claude to process via MCP
+async function queueCreate(todo) {
+  if (API === null) return
+  const queued = []
+  if (document.getElementById('sync-g').checked && todo.dueDate) {
+    await fetch(`${API}/api/queue/gcal`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ summary:todo.title, description:todo.description||'', startDate:todo.dueDate, startTime:todo.dueTime||null }) }).catch(()=>{})
+    queued.push('Google Calendar')
+  }
+  if (document.getElementById('sync-o').checked && todo.dueDate) {
+    await fetch(`${API}/api/queue/outlook`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ subject:todo.title, description:todo.description||'', startDate:todo.dueDate, startTime:todo.dueTime||null }) }).catch(()=>{})
+    queued.push('Outlook')
+  }
+  if (document.getElementById('sync-c').checked) {
+    await fetch(`${API}/api/queue/craft`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title:todo.title, dueDate:todo.dueDate||null }) }).catch(()=>{})
+    queued.push('Craft')
+  }
+  if (queued.length) toast(`Queued for ${queued.join(' + ')} — ask Claude Code to sync`, 'pending')
 }
 
 // ═══════════════════════════════════════════════════════
@@ -508,14 +538,9 @@ function filtered() {
 }
 
 // ═══════════════════════════════════════════════════════
-// PRIORITY / STATUS META
+// META
 // ═══════════════════════════════════════════════════════
-const PMAP = {
-  urgent: { label:'Urgent', cls:'p-urgent' },
-  high:   { label:'High',   cls:'p-high'   },
-  medium: { label:'Medium', cls:'p-medium' },
-  low:    { label:'Low',    cls:'p-low'    },
-}
+const PMAP = { urgent:{label:'Urgent',cls:'p-urgent'}, high:{label:'High',cls:'p-high'}, medium:{label:'Medium',cls:'p-medium'}, low:{label:'Low',cls:'p-low'} }
 const STATUSES = [
   { id:'backlog',     label:'Backlog',     color:'#64748b' },
   { id:'todo',        label:'To Do',       color:'#6366f1' },
@@ -526,15 +551,11 @@ const STATUSES = [
 // ═══════════════════════════════════════════════════════
 // VIEW STATE
 // ═══════════════════════════════════════════════════════
-let curView = 'list'
-let calYear = new Date().getFullYear()
-let calMonth = new Date().getMonth()
-let extEvents = []     // merged Google + Outlook events
-let dragId = null
+let curView = 'list', calYear = new Date().getFullYear(), calMonth = new Date().getMonth(), dragId = null
 
 function switchView(v) {
   curView = v
-  document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === v))
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view===v))
   document.getElementById('view-list').style.display     = v==='list'     ? 'block' : 'none'
   document.getElementById('view-kanban').style.display   = v==='kanban'   ? 'flex'  : 'none'
   document.getElementById('view-calendar').style.display = v==='calendar' ? 'block' : 'none'
@@ -543,13 +564,13 @@ function switchView(v) {
 
 function render() {
   updateCounts()
-  if (curView==='list')     renderList()
+  if (curView==='list')   renderList()
   else if (curView==='kanban')   renderKanban()
   else                           renderCal()
 }
 
 function updateCounts() {
-  const todos = Store.getTodos()
+  const todos  = Store.getTodos()
   const active = todos.filter(t=>t.status!=='done').length
   document.getElementById('hdr-sub').textContent = `${active} active todo${active!==1?'s':''}`
   document.getElementById('tc-list').textContent   = todos.filter(t=>t.status!=='done').length
@@ -561,31 +582,24 @@ function updateCounts() {
 // LIST VIEW
 // ═══════════════════════════════════════════════════════
 function renderList() {
-  const el = document.getElementById('view-list')
+  const el    = document.getElementById('view-list')
   const todos = filtered()
   const lists = Store.getLists()
-
-  if (!todos.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">✓</div><div class="empty-title">All clear!</div><div class="empty-desc">No todos match your filters. Add one or import from your integrations.</div></div>`
-    return
-  }
+  if (!todos.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">✓</div><div class="empty-title">All clear!</div></div>`; return }
 
   const grouped = {}
   todos.forEach(t => { (grouped[t.list] = grouped[t.list]||[]).push(t) })
+  const sortT = arr => arr.slice().sort((a,b) => {
+    if (a.status==='done' && b.status!=='done') return 1
+    if (b.status==='done' && a.status!=='done') return -1
+    return ({urgent:0,high:1,medium:2,low:3}[a.priority]??2) - ({urgent:0,high:1,medium:2,low:3}[b.priority]??2)
+  })
 
   const known = new Set(lists.map(l=>l.id))
   const extra = todos.filter(t=>!known.has(t.list))
 
-  const sortTodos = arr => arr.slice().sort((a,b) => {
-    if (a.status==='done' && b.status!=='done') return 1
-    if (b.status==='done' && a.status!=='done') return -1
-    const po = {urgent:0,high:1,medium:2,low:3}
-    return (po[a.priority]??2)-(po[b.priority]??2)
-  })
-
   let html = lists.map(list => {
-    const items = grouped[list.id]
-    if (!items?.length) return ''
+    const items = grouped[list.id]; if (!items?.length) return ''
     const done = items.filter(t=>t.status==='done').length
     return `<div class="list-group">
       <div class="list-group-hdr" onclick="toggleGroup('${list.id}')">
@@ -595,26 +609,19 @@ function renderList() {
         <span class="list-chevron" id="chev-${list.id}">▾</span>
       </div>
       <div class="list-group-body" id="grp-${list.id}">
-        ${sortTodos(items).map(todoRow).join('')}
+        ${sortT(items).map(todoRow).join('')}
         <div class="add-inline" onclick="openAdd('${list.id}')">+ Add to ${esc(list.name)}</div>
       </div>
     </div>`
   }).join('')
-
-  if (extra.length) {
-    html += `<div class="list-group">
-      <div class="list-group-hdr"><div class="list-color-dot" style="background:#64748b"></div><span class="list-group-name">Other</span></div>
-      <div class="list-group-body">${sortTodos(extra).map(todoRow).join('')}</div>
-    </div>`
-  }
-
+  if (extra.length) html += `<div class="list-group"><div class="list-group-hdr"><div class="list-color-dot" style="background:#64748b"></div><span class="list-group-name">Other</span></div><div class="list-group-body">${sortT(extra).map(todoRow).join('')}</div></div>`
   el.innerHTML = html
 }
 
 function todoRow(t) {
-  const done = t.status==='done'
-  const p    = PMAP[t.priority]||PMAP.medium
-  const dc   = isOverdue(t.dueDate)&&!done ? 'late' : isToday(t.dueDate) ? 'soon' : ''
+  const done = t.status==='done', p = PMAP[t.priority]||PMAP.medium
+  const dc = isOverdue(t.dueDate)&&!done ? 'late' : isToday(t.dueDate) ? 'soon' : ''
+  const srcChip = t.source && t.source!=='manual' ? `<span class="src-chip src-${t.source}">${t.source}</span>` : ''
   return `<div class="todo-row${done?' is-done':''}" id="tr-${t.id}">
     <div class="chk${done?' checked':''}" onclick="toggleDone('${t.id}')">${done?'✓':''}</div>
     <div class="todo-body">
@@ -622,21 +629,19 @@ function todoRow(t) {
       ${t.description?`<div class="todo-desc-preview">${esc(t.description)}</div>`:''}
       <div class="todo-chips">
         ${t.dueDate?`<span class="chip-due ${dc}">📅 ${fmtDate(t.dueDate)}${t.dueTime?' '+t.dueTime:''}</span>`:''}
-        <span class="pchip ${p.cls}">${p.label}</span>
-        ${t.source&&t.source!=='manual'?`<span class="src-chip">${t.source}</span>`:''}
+        <span class="pchip ${p.cls}">${p.label}</span>${srcChip}
       </div>
     </div>
     <div class="todo-acts">
-      <button class="act-btn" onclick="openEdit('${t.id}')" title="Edit">✎</button>
-      <button class="act-btn" onclick="del('${t.id}')" title="Delete" style="color:var(--red)">✕</button>
+      <button class="act-btn" onclick="openEdit('${t.id}')">✎</button>
+      <button class="act-btn" onclick="del('${t.id}')" style="color:var(--red)">✕</button>
     </div>
   </div>`
 }
 
 function toggleGroup(id) {
-  const body  = document.getElementById(`grp-${id}`)
-  const chev  = document.getElementById(`chev-${id}`)
-  const hide  = body.style.display !== 'none' && body.style.display !== ''
+  const body = document.getElementById(`grp-${id}`), chev = document.getElementById(`chev-${id}`)
+  const hide = body.style.display !== 'none' && body.style.display !== ''
   body.style.display = hide ? 'none' : 'flex'
   if (!hide) { body.style.flexDirection='column'; body.style.gap='4px' }
   chev.textContent = hide ? '▸' : '▾'
@@ -646,29 +651,18 @@ function toggleGroup(id) {
 // KANBAN VIEW
 // ═══════════════════════════════════════════════════════
 function renderKanban() {
-  const el    = document.getElementById('view-kanban')
-  const todos = filtered()
-  const lists = Store.getLists()
-  const lmap  = Object.fromEntries(lists.map(l=>[l.id,l]))
-
+  const el = document.getElementById('view-kanban'), todos = filtered()
+  const lmap = Object.fromEntries(Store.getLists().map(l=>[l.id,l]))
   el.innerHTML = STATUSES.map(s => {
     const cards = todos.filter(t=>t.status===s.id)
     return `<div class="kcol" data-status="${s.id}">
-      <div class="kcol-hdr">
-        <div class="kcol-dot" style="background:${s.color}"></div>
-        <span class="kcol-label">${s.label}</span>
-        <span class="kcol-count">${cards.length}</span>
-      </div>
-      <div class="kcol-cards" id="kc-${s.id}"
-           ondragover="kdragover(event,'${s.id}')"
-           ondrop="kdrop(event,'${s.id}')"
-           ondragleave="kdragleave(event)">
+      <div class="kcol-hdr"><div class="kcol-dot" style="background:${s.color}"></div><span class="kcol-label">${s.label}</span><span class="kcol-count">${cards.length}</span></div>
+      <div class="kcol-cards" id="kc-${s.id}" ondragover="kdragover(event,'${s.id}')" ondrop="kdrop(event,'${s.id}')" ondragleave="kdragleave(event)">
         ${cards.map(t=>kcard(t,lmap)).join('')}
       </div>
       <button class="kcol-add" onclick="openAdd(null,'${s.id}')">+ Add card</button>
     </div>`
   }).join('')
-
   document.querySelectorAll('.kcard').forEach(card => {
     card.addEventListener('dragstart', e => { dragId=card.dataset.id; card.classList.add('dragging') })
     card.addEventListener('dragend',   e => { card.classList.remove('dragging'); document.querySelectorAll('.kcol-cards').forEach(c=>c.classList.remove('drag-over')) })
@@ -677,13 +671,12 @@ function renderKanban() {
 }
 
 function kcard(t, lmap) {
-  const p    = PMAP[t.priority]||PMAP.medium
-  const list = lmap[t.list]
-  const dc   = isOverdue(t.dueDate)&&t.status!=='done' ? 'late' : isToday(t.dueDate) ? 'soon' : ''
+  const p = PMAP[t.priority]||PMAP.medium, list = lmap[t.list]
+  const dc = isOverdue(t.dueDate)&&t.status!=='done' ? 'late' : isToday(t.dueDate) ? 'soon' : ''
   return `<div class="kcard" draggable="true" data-id="${t.id}">
     <div class="kcard-title">${esc(t.title)}</div>
     <div class="kcard-footer">
-      ${list?`<div class="kcard-list-dot" style="background:${list.color}"></div><span class="kcard-list-name">${esc(list.name)}</span>`:''}
+      ${list?`<div style="width:8px;height:8px;border-radius:50%;background:${list.color}"></div><span style="font-size:10px;color:var(--muted)">${esc(list.name)}</span>`:''}
       <span class="pchip ${p.cls}" style="margin-left:auto">${p.label}</span>
     </div>
     ${t.dueDate?`<div class="chip-due ${dc} kcard-due">📅 ${fmtDate(t.dueDate)}</div>`:''}
@@ -691,29 +684,21 @@ function kcard(t, lmap) {
 }
 
 function kdragover(e, sid) { e.preventDefault(); document.getElementById(`kc-${sid}`).classList.add('drag-over') }
-function kdragleave(e)     { e.currentTarget.classList.remove('drag-over') }
+function kdragleave(e) { e.currentTarget.classList.remove('drag-over') }
 function kdrop(e, sid) {
-  e.preventDefault()
-  e.currentTarget.classList.remove('drag-over')
-  if (dragId) {
-    Store.update(dragId, { status:sid, completedAt: sid==='done'?new Date().toISOString():null })
-    dragId = null; render()
-  }
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over')
+  if (dragId) { Store.update(dragId,{status:sid,completedAt:sid==='done'?new Date().toISOString():null}); dragId=null; render() }
 }
 
 // ═══════════════════════════════════════════════════════
 // CALENDAR VIEW
 // ═══════════════════════════════════════════════════════
 function renderCal() {
-  const el    = document.getElementById('view-calendar')
+  const el = document.getElementById('view-calendar')
   const todos = filtered().filter(t=>t.dueDate)
-  const tmap  = {}
+  const tmap = {}, emap = {}
   todos.forEach(t => { (tmap[t.dueDate]=tmap[t.dueDate]||[]).push(t) })
-  const emap  = {}
-  extEvents.forEach(ev => {
-    const d = ev._date || (ev.start?.date) || (ev.start?.dateTime||'').slice(0,10) || (ev.start?.dateTime||'').slice(0,10)
-    if (d) (emap[d]=emap[d]||[]).push(ev)
-  })
+  extEvents.forEach(ev => { const d=ev._date; if(d)(emap[d]=emap[d]||[]).push(ev) })
 
   const mn = new Date(calYear,calMonth).toLocaleString('en-US',{month:'long',year:'numeric'})
   const fd = new Date(calYear,calMonth,1).getDay()
@@ -727,6 +712,11 @@ function renderCal() {
       <button onclick="calNav(1)">›</button>
     </div>
   </div>
+  <div class="cal-legend">
+    <div class="cal-leg"><div class="cal-leg-dot p-urgent"></div> Todo</div>
+    <div class="cal-leg"><div class="cal-leg-dot" style="background:rgba(34,197,94,.4)"></div> Google Calendar</div>
+    <div class="cal-leg"><div class="cal-leg-dot" style="background:rgba(59,130,246,.4)"></div> Outlook</div>
+  </div>
   <div class="cal-grid">
     <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div>
     <div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>`
@@ -736,16 +726,13 @@ function renderCal() {
   for (let d=1;d<=nd;d++) {
     const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
     const dt = ds===TODAY
-    const dt_todos  = tmap[ds]||[]
-    const dt_events = emap[ds]||[]
+    const dt_todos = tmap[ds]||[], dt_events = emap[ds]||[]
     html += `<div class="cal-cell${dt?' is-today':''}" onclick="openAdd(null,null,'${ds}')">
       <div class="cal-day-num">${d}${dt?'<span class="today-badge">Today</span>':''}</div>
-      ${dt_todos.slice(0,3).map(t => {
-        const p=PMAP[t.priority]||PMAP.medium
-        return `<div class="cal-pill ${p.cls}" style="opacity:${t.status==='done'?.5:1}" onclick="event.stopPropagation();openEdit('${t.id}')">${esc(t.title)}</div>`
-      }).join('')}
-      ${dt_todos.length>3?`<div style="font-size:10px;color:var(--muted)">+${dt_todos.length-3} more</div>`:''}
-      ${dt_events.slice(0,2).map(ev=>`<div class="cal-ext-event">${esc(ev.summary||ev.subject||'Event')}</div>`).join('')}
+      ${dt_todos.slice(0,3).map(t=>{const p=PMAP[t.priority]||PMAP.medium;return `<div class="cal-pill ${p.cls}" onclick="event.stopPropagation();openEdit('${t.id}')">${esc(t.title)}</div>`}).join('')}
+      ${dt_todos.length>3?`<div style="font-size:10px;color:var(--muted)">+${dt_todos.length-3}</div>`:''}
+      ${dt_events.slice(0,3).map(ev=>`<div class="cal-ext ${ev._src==='outlook'?'cal-ext-outlook':'cal-ext-gcal'}">${esc(ev.title||ev.summary||'Event')}</div>`).join('')}
+      ${dt_events.length>3?`<div style="font-size:10px;color:var(--muted)">+${dt_events.length-3} events</div>`:''}
     </div>`
   }
 
@@ -755,11 +742,7 @@ function renderCal() {
 
 function calNav(dir) {
   if (dir===0) { calMonth=new Date().getMonth(); calYear=new Date().getFullYear() }
-  else {
-    calMonth += dir
-    if (calMonth>11) { calMonth=0; calYear++ }
-    if (calMonth<0)  { calMonth=11; calYear-- }
-  }
+  else { calMonth+=dir; if(calMonth>11){calMonth=0;calYear++} if(calMonth<0){calMonth=11;calYear--} }
   renderCal()
 }
 
@@ -775,15 +758,16 @@ function openAdd(listId, statusId, dateStr) {
   document.getElementById('m-time').value     = ''
   document.getElementById('m-status').value   = statusId||'todo'
   document.getElementById('m-priority').value = 'medium'
+  document.getElementById('sync-g').checked   = false
+  document.getElementById('sync-o').checked   = false
+  document.getElementById('sync-c').checked   = false
   fillListSelect(listId||'inbox')
-  refreshSyncOptions()
   document.getElementById('todo-modal').classList.add('open')
   setTimeout(()=>document.getElementById('m-title').focus(),60)
 }
 
 function openEdit(id) {
-  const t = Store.getTodos().find(x=>x.id===id)
-  if (!t) return
+  const t = Store.getTodos().find(x=>x.id===id); if (!t) return
   document.getElementById('todo-modal-title').textContent = 'Edit Todo'
   document.getElementById('m-id').value       = t.id
   document.getElementById('m-title').value    = t.title
@@ -792,24 +776,16 @@ function openEdit(id) {
   document.getElementById('m-time').value     = t.dueTime||''
   document.getElementById('m-status').value   = t.status||'todo'
   document.getElementById('m-priority').value = t.priority||'medium'
+  document.getElementById('sync-g').checked   = false
+  document.getElementById('sync-o').checked   = false
+  document.getElementById('sync-c').checked   = false
   fillListSelect(t.list)
-  refreshSyncOptions()
   document.getElementById('todo-modal').classList.add('open')
   setTimeout(()=>document.getElementById('m-title').focus(),60)
 }
 
-function fillListSelect(selected) {
-  const sel = document.getElementById('m-list')
-  sel.innerHTML = Store.getLists().map(l=>`<option value="${l.id}" ${l.id===selected?'selected':''}>${esc(l.name)}</option>`).join('')
-}
-
-function refreshSyncOptions() {
-  const hasG = GCal.isConnected()
-  const hasO = OCal.isConnected()
-  const box  = document.getElementById('m-sync')
-  box.style.display = (hasG||hasO) ? 'flex' : 'none'
-  document.getElementById('sync-g').checked = hasG
-  document.getElementById('sync-o').checked = hasO
+function fillListSelect(sel) {
+  document.getElementById('m-list').innerHTML = Store.getLists().map(l=>`<option value="${l.id}" ${l.id===sel?'selected':''}>${esc(l.name)}</option>`).join('')
 }
 
 function closeAdd() { document.getElementById('todo-modal').classList.remove('open') }
@@ -818,34 +794,16 @@ async function saveTodo() {
   const title = document.getElementById('m-title').value.trim()
   if (!title) { document.getElementById('m-title').style.borderColor='var(--red)'; return }
   document.getElementById('m-title').style.borderColor=''
-
   const id   = document.getElementById('m-id').value
-  const data = {
-    title,
-    description: document.getElementById('m-desc').value.trim(),
-    list:     document.getElementById('m-list').value,
-    priority: document.getElementById('m-priority').value,
-    dueDate:  document.getElementById('m-date').value,
-    dueTime:  document.getElementById('m-time').value,
-    status:   document.getElementById('m-status').value,
-  }
-
+  const data = { title, description:document.getElementById('m-desc').value.trim(), list:document.getElementById('m-list').value, priority:document.getElementById('m-priority').value, dueDate:document.getElementById('m-date').value, dueTime:document.getElementById('m-time').value, status:document.getElementById('m-status').value }
   const todo = id ? Store.update(id, data) : Store.add({ ...data, source:'manual' })
-
-  if (todo?.dueDate) {
-    if (document.getElementById('sync-g').checked && GCal.isConnected())
-      GCal.createEvent(todo).catch(e=>console.warn('GCal sync failed',e))
-    if (document.getElementById('sync-o').checked && OCal.isConnected())
-      OCal.createEvent(todo).catch(e=>console.warn('Outlook sync failed',e))
-  }
-
-  closeAdd(); render()
+  await queueCreate(todo)
+  closeAdd(); render(); toast('Saved', 'success')
 }
 
 function toggleDone(id) {
-  const t = Store.getTodos().find(x=>x.id===id)
-  if (!t) return
-  Store.update(id, { status: t.status==='done'?'todo':'done', completedAt: t.status!=='done'?new Date().toISOString():null })
+  const t = Store.getTodos().find(x=>x.id===id); if (!t) return
+  Store.update(id, { status:t.status==='done'?'todo':'done', completedAt:t.status!=='done'?new Date().toISOString():null })
   render()
 }
 
@@ -854,190 +812,34 @@ function del(id) {
 }
 
 // ═══════════════════════════════════════════════════════
-// GOOGLE CALENDAR
+// SYNC INFO MODAL
 // ═══════════════════════════════════════════════════════
-const GCal = {
-  _tc: null, _tok: null, _exp: 0,
-
-  init() {
-    const s = Store.getSettings()
-    if (!s.googleClientId || !window.google?.accounts?.oauth2) return
-    this._tc = google.accounts.oauth2.initTokenClient({
-      client_id: s.googleClientId,
-      scope: 'https://www.googleapis.com/auth/calendar',
-      callback: r => {
-        if (r.error) return
-        this._tok = r.access_token
-        this._exp = Date.now()+(r.expires_in-60)*1000
-        localStorage.setItem('gcal-tok',  r.access_token)
-        localStorage.setItem('gcal-exp',  this._exp)
-        updateIntStatus(); this.fetchEvents()
-      }
-    })
-  },
-
-  isConnected() {
-    if (this._tok && Date.now()<this._exp) return true
-    const t=localStorage.getItem('gcal-tok'), e=+localStorage.getItem('gcal-exp')
-    if (t && Date.now()<e) { this._tok=t; this._exp=e; return true }
-    return false
-  },
-
-  tok() { return this._tok||localStorage.getItem('gcal-tok') },
-
-  connect() {
-    const s = Store.getSettings()
-    if (!s.googleClientId) { openSettings(); return }
-    if (!this._tc) this.init()
-    if (this._tc) this._tc.requestAccessToken()
-    else { toast('Google Identity Services still loading — try again in a moment.') }
-  },
-
-  async createEvent(t) {
-    const tok = this.tok(); if (!tok||!t.dueDate) return
-    const s   = Store.getSettings()
-    const cid = encodeURIComponent(s.googleCalendarId||'primary')
-    const tz  = Intl.DateTimeFormat().resolvedOptions().timeZone
-    return fetch(`https://www.googleapis.com/calendar/v3/calendars/${cid}/events`,{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${tok}`,'Content-Type':'application/json'},
-      body: JSON.stringify({
-        summary: t.title, description: t.description||'',
-        start: t.dueTime ? {dateTime:`${t.dueDate}T${t.dueTime}:00`,timeZone:tz} : {date:t.dueDate},
-        end:   t.dueTime ? {dateTime:`${t.dueDate}T${t.dueTime}:00`,timeZone:tz} : {date:t.dueDate},
-      })
-    }).then(r=>r.json())
-  },
-
-  async fetchEvents() {
-    const tok = this.tok(); if (!tok) return
-    const s   = Store.getSettings()
-    const cid = encodeURIComponent(s.googleCalendarId||'primary')
-    const min = new Date(calYear, calMonth-1, 1).toISOString()
-    const max = new Date(calYear, calMonth+3,  1).toISOString()
-    try {
-      const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${cid}/events?timeMin=${min}&timeMax=${max}&singleEvents=true&orderBy=startTime&maxResults=250`,{headers:{'Authorization':`Bearer ${tok}`}})
-      const d = await r.json()
-      extEvents = [...extEvents.filter(e=>e._src!=='google'), ...(d.items||[]).map(e=>({...e,_src:'google',_date:e.start?.date||(e.start?.dateTime||'').slice(0,10)}))]
-      if (curView==='calendar') renderCal()
-    } catch(e) { console.warn('GCal fetch',e) }
+async function openSyncInfo() {
+  document.getElementById('sync-modal').classList.add('open')
+  const detail = document.getElementById('sync-status-detail')
+  const qd     = document.getElementById('queue-detail')
+  if (API === null) {
+    detail.innerHTML = '⚠️ Running as a local file. Start <code>node server.js</code> in the project directory for full MCP sync functionality.'
+    return
   }
+  try {
+    const r = await fetch(`${API}/api/sync-status`)
+    const s = await r.json()
+    detail.innerHTML = `<strong>Google Calendar:</strong> ${s.gcalCalendar||'–'}<br>
+<strong>Outlook:</strong> ${s.outlookUser||'–'}<br>
+<strong>Craft:</strong> ${s.craftUser||'–'}<br>
+<strong>Last synced:</strong> ${s.lastSync ? new Date(s.lastSync).toLocaleString() : '–'}`
+    const pending = (s.pendingGcal||0)+(s.pendingOutlook||0)+(s.pendingCraft||0)
+    qd.innerHTML = pending > 0 ? `<div class="queue-info" style="margin-top:12px">⏳ <strong>${pending} item(s) queued</strong> — tell Claude Code: <em>"process the MCP queue in /athlete-dashboard/data"</em></div>` : ''
+  } catch { detail.textContent = 'Could not reach server. Is node server.js running?' }
 }
 
-// ═══════════════════════════════════════════════════════
-// OUTLOOK / MSAL
-// ═══════════════════════════════════════════════════════
-const OCal = {
-  _app: null, _acct: null,
-
-  init() {
-    const s = Store.getSettings()
-    if (!s.msClientId || !window.msal) return
-    try {
-      this._app = new msal.PublicClientApplication({
-        auth:  { clientId:s.msClientId, authority:'https://login.microsoftonline.com/common', redirectUri:location.href.split('?')[0] },
-        cache: { cacheLocation:'localStorage', storeAuthStateInCookie:false },
-      })
-      this._app.handleRedirectPromise().catch(()=>{})
-      const accts = this._app.getAllAccounts()
-      if (accts.length) { this._acct=accts[0]; updateIntStatus(); this.fetchEvents() }
-    } catch(e) { console.warn('MSAL init',e) }
-  },
-
-  isConnected() { return !!this._acct },
-
-  async connect() {
-    const s = Store.getSettings()
-    if (!s.msClientId) { openSettings(); return }
-    if (!this._app) this.init()
-    if (!this._app) { toast('MSAL still loading — try again in a moment.'); return }
-    try {
-      const r = await this._app.loginPopup({ scopes:['Calendars.ReadWrite'] })
-      this._acct = r.account; updateIntStatus(); this.fetchEvents()
-    } catch(e) { console.warn('MSAL login',e) }
-  },
-
-  async tok() {
-    if (!this._app||!this._acct) return null
-    try {
-      const r = await this._app.acquireTokenSilent({ scopes:['Calendars.ReadWrite'], account:this._acct })
-      return r.accessToken
-    } catch(e) {
-      const r = await this._app.acquireTokenPopup({ scopes:['Calendars.ReadWrite'] })
-      return r.accessToken
-    }
-  },
-
-  async createEvent(t) {
-    const tok = await this.tok(); if (!tok||!t.dueDate) return
-    const tz  = Intl.DateTimeFormat().resolvedOptions().timeZone
-    return fetch('https://graph.microsoft.com/v1.0/me/events',{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${tok}`,'Content-Type':'application/json'},
-      body: JSON.stringify({
-        subject: t.title, isAllDay:!t.dueTime,
-        body: {contentType:'text',content:t.description||''},
-        start: {dateTime:`${t.dueDate}T${t.dueTime||'09:00'}:00`,timeZone:tz},
-        end:   {dateTime:`${t.dueDate}T${t.dueTime||'10:00'}:00`,timeZone:tz},
-      })
-    }).then(r=>r.json())
-  },
-
-  async fetchEvents() {
-    const tok = await this.tok(); if (!tok) return
-    const min = new Date(calYear,calMonth-1,1).toISOString()
-    const max = new Date(calYear,calMonth+3, 1).toISOString()
-    try {
-      const r = await fetch(`https://graph.microsoft.com/v1.0/me/calendarview?startDateTime=${min}&endDateTime=${max}&$top=250`,{headers:{'Authorization':`Bearer ${tok}`}})
-      const d = await r.json()
-      extEvents = [...extEvents.filter(e=>e._src!=='outlook'), ...(d.value||[]).map(e=>({...e,_src:'outlook',summary:e.subject,_date:(e.start?.dateTime||'').slice(0,10)}))]
-      if (curView==='calendar') renderCal()
-    } catch(e) { console.warn('Outlook fetch',e) }
-  }
-}
+function closeSyncInfo() { document.getElementById('sync-modal').classList.remove('open') }
 
 // ═══════════════════════════════════════════════════════
-// INTEGRATION STATUS BAR
+// IMPORT (Granola + Recall AI)
 // ═══════════════════════════════════════════════════════
-function updateIntStatus() {
-  const g = document.getElementById('int-google')
-  const o = document.getElementById('int-outlook')
-  const r = document.getElementById('int-recall')
-  const s = Store.getSettings()
-
-  if (GCal.isConnected()) {
-    g.className='int-pill int-on'
-    document.getElementById('int-google-lbl').textContent='Google Calendar ✓'
-  } else {
-    g.className='int-pill int-off'
-    document.getElementById('int-google-lbl').textContent='Connect Google Calendar'
-  }
-
-  if (OCal.isConnected()) {
-    o.className='int-pill int-on'
-    document.getElementById('int-outlook-lbl').textContent=`Outlook: ${OCal._acct?.username||'Connected'}`
-  } else {
-    o.className='int-pill int-off'
-    document.getElementById('int-outlook-lbl').textContent='Connect Outlook'
-  }
-
-  if (s.recallApiKey) {
-    r.className='int-pill int-on'
-    document.getElementById('int-recall-lbl').textContent='Recall AI ✓'
-  } else {
-    r.className='int-pill int-off'
-    document.getElementById('int-recall-lbl').textContent='Recall AI'
-  }
-}
-
-function connectGoogle()  { GCal.connect() }
-function connectOutlook() { OCal.connect() }
-
-// ═══════════════════════════════════════════════════════
-// IMPORT (GRANOLA + RECALL AI)
-// ═══════════════════════════════════════════════════════
-let impSrc = 'granola'
-let impItems = []
+let impSrc = 'granola', impItems = []
 
 function openImport(src) {
   impSrc = src
@@ -1047,75 +849,44 @@ function openImport(src) {
   document.getElementById('imp-recall').style.display  = src==='recall'  ? 'block' : 'none'
   document.getElementById('imp-results').style.display = 'none'
   document.getElementById('imp-confirm').style.display = 'none'
-  if (src==='granola') document.getElementById('granola-text').value=''
   document.getElementById('import-modal').classList.add('open')
 }
 
 function closeImport() { document.getElementById('import-modal').classList.remove('open') }
 
-function extractActionItems(text) {
+function extractActionItems(text, source) {
   const out=[], seen=new Set()
-  const add = s => { s=s.trim().replace(/\*{1,2}/g,'').trim(); if (s.length>=5&&s.length<200&&!seen.has(s.toLowerCase())) { seen.add(s.toLowerCase()); out.push(s) } }
-
-  // Bullets
-  let m, r=/^[ \t]*[-•*]\s*(?:\[[ xX]\]\s*)?(.{4,200})$/gm
-  while((m=r.exec(text))) add(m[1])
-  // Numbered
-  r=/^\s*\d+\.\s+(.{4,200})$/gm
-  while((m=r.exec(text))) add(m[1])
-  // Inline action phrases
-  r=/\b(?:action items?|follow.?up|next step|todo|task):\s*(.{4,150})/gi
-  while((m=r.exec(text))) add(m[1].replace(/[.!?]$/,''))
-  return out
+  const add = s => { s=s.trim().replace(/\*{1,2}/g,'').trim(); if(s.length>=5&&s.length<200&&!seen.has(s.toLowerCase())){seen.add(s.toLowerCase());out.push(s)} }
+  let m
+  let r=/^[ \t]*[-•*]\s*(?:\[[ xX]\]\s*)?(.{4,200})$/gm; while((m=r.exec(text)))add(m[1])
+  r=/^\s*\d+\.\s+(.{4,200})$/gm; while((m=r.exec(text)))add(m[1])
+  r=/\b(?:action items?|follow.?up|next step|todo|task):\s*(.{4,150})/gi; while((m=r.exec(text)))add(m[1].replace(/[.!?]$/,''))
+  return out.map(title=>({title,status:'todo',priority:'medium',source,list:'inbox'}))
 }
 
 function parseGranola() {
   const text = document.getElementById('granola-text').value
-  const items = extractActionItems(text)
-  impItems = items.map(title=>({title,status:'todo',priority:'medium',source:'granola',list:'inbox'}))
+  impItems = extractActionItems(text, 'granola')
   showImpResults(impItems)
 }
 
-async function fetchRecall() {
-  const s = Store.getSettings()
-  if (!s.recallApiKey) { document.getElementById('recall-msg').textContent='No API key. Add it in Settings.'; openSettings(); return }
-  const base = s.recallProxy||'https://api.recall.ai'
-  document.getElementById('recall-msg').textContent='⏳ Fetching recordings…'
-  try {
-    const r = await fetch(`${base}/api/v1/bot/?limit=10&ordering=-created_at`,{headers:{'Authorization':`Token ${s.recallApiKey}`,'Accept':'application/json'}})
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    const d = await r.json()
-    const bots = d.results||[]
-    document.getElementById('recall-msg').textContent=`Found ${bots.length} recording(s). Extracting…`
-    const items=[]
-    for (const bot of bots.slice(0,5)) {
-      try {
-        const tr = await fetch(`${base}/api/v1/bot/${bot.id}/transcript/`,{headers:{'Authorization':`Token ${s.recallApiKey}`}})
-        if (!tr.ok) continue
-        const td = await tr.json()
-        const txt = Array.isArray(td)?td.map(s=>(s.words||[]).map(w=>w.text).join(' ')).join('\n'):JSON.stringify(td)
-        extractActionItems(txt).forEach(t=>items.push({title:t,status:'todo',priority:'medium',source:'recall',sourceId:bot.id,list:'inbox'}))
-      } catch(e){}
-    }
-    impItems = items
-    showImpResults(items)
-  } catch(e) {
-    document.getElementById('recall-msg').textContent=`Error: ${e.message}. Likely a CORS issue — set a proxy URL in Settings, or use the Granola manual paste instead.`
-  }
+function parseRecall() {
+  const text = document.getElementById('recall-text').value
+  impItems = extractActionItems(text, 'recall')
+  showImpResults(impItems)
 }
 
 function showImpResults(items) {
   document.getElementById('imp-results').style.display = 'block'
   document.getElementById('imp-results-hdr').textContent = `${items.length} item${items.length!==1?'s':''} detected`
-  document.getElementById('imp-confirm').style.display = items.length?'block':'none'
+  document.getElementById('imp-confirm').style.display = items.length ? 'block' : 'none'
   document.getElementById('imp-list').innerHTML = items.length
     ? items.map((it,i)=>`<div class="import-item"><input type="checkbox" checked data-i="${i}"><span>${esc(it.title)}</span></div>`).join('')
-    : '<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px">No action items detected. Try using bullet points or numbered lists.</div>'
+    : '<div style="font-size:13px;color:var(--muted);text-align:center;padding:16px">No action items detected.</div>'
 }
 
 function toggleAll() {
-  const cbs=[...document.querySelectorAll('#imp-list input[type=checkbox]')]
-  const all=cbs.every(c=>c.checked)
+  const cbs=[...document.querySelectorAll('#imp-list input[type=checkbox]')], all=cbs.every(c=>c.checked)
   cbs.forEach(c=>c.checked=!all)
 }
 
@@ -1123,129 +894,54 @@ function confirmImport() {
   const sel=[...document.querySelectorAll('#imp-list input[type=checkbox]')].filter(c=>c.checked).map(c=>impItems[+c.dataset.i])
   sel.forEach(it=>Store.add(it))
   closeImport(); render()
-  toast(`✓ Imported ${sel.length} todo${sel.length!==1?'s':''}`)
+  toast(`✓ Imported ${sel.length} todo${sel.length!==1?'s':''}`, 'success')
+  // Mark import source as active
+  const src = impSrc
+  document.getElementById(`sync-${src}`).className = 'sync-chip sync-on'
 }
 
 // ═══════════════════════════════════════════════════════
-// SETTINGS
+// FILTER LIST
 // ═══════════════════════════════════════════════════════
-function openSettings() {
-  const s=Store.getSettings()
-  document.getElementById('s-gcid').value    = s.googleClientId||''
-  document.getElementById('s-gcal').value    = s.googleCalendarId||'primary'
-  document.getElementById('s-msid').value    = s.msClientId||''
-  document.getElementById('s-rkey').value    = s.recallApiKey||''
-  document.getElementById('s-rproxy').value  = s.recallProxy||''
-  renderSettingsLists()
-  document.getElementById('settings-modal').classList.add('open')
-}
-
-function closeSettings() { document.getElementById('settings-modal').classList.remove('open') }
-
-function saveSettings() {
-  Store.saveSettings({
-    googleClientId:   document.getElementById('s-gcid').value.trim(),
-    googleCalendarId: document.getElementById('s-gcal').value.trim()||'primary',
-    msClientId:       document.getElementById('s-msid').value.trim(),
-    recallApiKey:     document.getElementById('s-rkey').value.trim(),
-    recallProxy:      document.getElementById('s-rproxy').value.trim(),
-  })
-  GCal._tc=null; GCal.init()
-  OCal._app=null; OCal.init()
-  updateIntStatus()
-  closeSettings()
-  toast('Settings saved')
-}
-
-function renderSettingsLists() {
-  const lists=Store.getLists()
-  const fixed=new Set(['inbox','personal','work','training'])
-  document.getElementById('s-lists').innerHTML=lists.map(l=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-      <div style="width:12px;height:12px;border-radius:50%;background:${l.color};flex-shrink:0"></div>
-      <span style="flex:1;font-size:13px">${esc(l.name)}</span>
-      ${!fixed.has(l.id)?`<button class="btn btn-sm" onclick="removeList('${l.id}')" style="color:var(--red)">Remove</button>`:''}
-    </div>`).join('')
-}
-
-function addList() {
-  const name=document.getElementById('s-newlist').value.trim()
-  if (!name) return
-  const color=document.getElementById('s-newcolor').value
-  const lists=Store.getLists()
-  lists.push({id:`list-${uid()}`,name,color})
-  Store.saveLists(lists)
-  document.getElementById('s-newlist').value=''
-  renderSettingsLists(); populateListFilter()
-}
-
-function removeList(id) {
-  Store.saveLists(Store.getLists().filter(l=>l.id!==id))
-  renderSettingsLists(); populateListFilter()
-}
-
 function populateListFilter() {
   const sel=document.getElementById('fl'), cur=sel.value
   sel.innerHTML='<option value="">All Lists</option>'+Store.getLists().map(l=>`<option value="${l.id}" ${l.id===cur?'selected':''}>${esc(l.name)}</option>`).join('')
 }
 
 // ═══════════════════════════════════════════════════════
-// EXPORT / IMPORT JSON
-// ═══════════════════════════════════════════════════════
-function exportJSON() {
-  const blob=new Blob([JSON.stringify({todos:Store.getTodos(),lists:Store.getLists(),exportedAt:new Date().toISOString()},null,2)],{type:'application/json'})
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`todos-${TODAY}.json`; a.click()
-}
-
-function importJSON(input) {
-  const file=input.files[0]; if (!file) return
-  const reader=new FileReader()
-  reader.onload=e=>{
-    try {
-      const d=JSON.parse(e.target.result)
-      if (d.todos) {
-        const existing=new Set(Store.getTodos().map(t=>t.id))
-        Store.saveTodos([...Store.getTodos(),...d.todos.filter(t=>!existing.has(t.id))])
-      }
-      if (d.lists) {
-        const existing=new Set(Store.getLists().map(l=>l.id))
-        Store.saveLists([...Store.getLists(),...d.lists.filter(l=>!existing.has(l.id))])
-      }
-      render(); populateListFilter()
-      toast(`Imported ${d.todos?.length||0} todos`)
-    } catch(e) { alert('Invalid JSON file') }
-  }
-  reader.readAsText(file); input.value=''
-}
-
-// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-function init() {
+async function init() {
   populateListFilter()
 
-  // Restore GCal token
-  const st=localStorage.getItem('gcal-tok'), se=+localStorage.getItem('gcal-exp')
-  if (st && Date.now()<se) { GCal._tok=st; GCal._exp=se }
-
-  const tryInitIntegrations = () => {
-    const s=Store.getSettings()
-    if (window.google?.accounts?.oauth2 && s.googleClientId) GCal.init()
-    if (window.msal && s.msClientId) OCal.init()
+  // Load todos from server if available (merges Craft tasks)
+  if (API !== null) {
+    try {
+      const r = await fetch(`${API}/api/todos`)
+      if (r.ok) {
+        const serverTodos = await r.json()
+        // Merge: add any server todos not already in localStorage
+        const existing = new Set(Store.getTodos().map(t=>t.id))
+        const toAdd = serverTodos.filter(t=>!existing.has(t.id))
+        if (toAdd.length) {
+          const merged = [...Store.getTodos(), ...toAdd]
+          localStorage.setItem('td-todos', JSON.stringify(merged))
+          toast(`Loaded ${toAdd.length} task${toAdd.length!==1?'s':''} from Craft + server`, 'success')
+        }
+      }
+    } catch {}
   }
-  tryInitIntegrations()
-  window.addEventListener('load', tryInitIntegrations)
-  setTimeout(tryInitIntegrations, 2000)
 
-  updateIntStatus()
+  await loadExtEvents()
+  await loadSyncStatus()
   render()
 
   // Close modals on overlay click
   document.querySelectorAll('.overlay').forEach(ov => {
-    ov.addEventListener('click', e => { if (e.target===ov) ov.classList.remove('open') })
+    ov.addEventListener('click', e => { if(e.target===ov) ov.classList.remove('open') })
   })
 
-  // Keyboard shortcut: N → new todo
+  // Keyboard: N = new todo
   document.addEventListener('keydown', e => {
     if (e.key==='n' && !e.ctrlKey && !e.metaKey && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
       e.preventDefault(); openAdd(null)
