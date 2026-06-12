@@ -35,6 +35,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Claude Code internal
+.claude/
+
 # database (local data, not for version control)
 data/
 
