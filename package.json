@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='' next dev -p 4317",
+    "dev": "node scripts/dev.mjs 4317 dev",
     "build": "NODE_OPTIONS='' next build",
-    "start": "NODE_OPTIONS='' next start -p 4317",
-    "cockpit": "NODE_OPTIONS='' next dev -p 4317",
+    "start": "node scripts/dev.mjs 4317 start",
+    "cockpit": "node scripts/dev.mjs 4317 dev",
     "seed": "npx tsx scripts/seed.ts",
     "rebuild-index": "npx tsx scripts/rebuild-index.ts"
   },
