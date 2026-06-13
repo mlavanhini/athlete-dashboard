@@ -3,15 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 4317",
-    "build": "next build",
-    "start": "next start -p 4317",
-    "cockpit": "next dev -p 4317",
+    "dev": "NODE_OPTIONS='' next dev -p 4317",
+    "build": "NODE_OPTIONS='' next build",
+    "start": "NODE_OPTIONS='' next start -p 4317",
+    "cockpit": "NODE_OPTIONS='' next dev -p 4317",
     "seed": "npx tsx scripts/seed.ts",
     "rebuild-index": "npx tsx scripts/rebuild-index.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
+    "geist": "^1.7.2",
     "gray-matter": "^4.0.3",
     "next": "15.3.3",
     "react": "^19.0.0",
