@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-zinc-950 text-zinc-100 font-mono text-sm;
+  }
+  * {
+    @apply border-zinc-800;
+  }
+}
+
+@layer components {
+  .badge-est {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-900/40 text-amber-300 border border-amber-700/50;
+  }
+  .badge-stale {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-zinc-700/50 text-zinc-400 border border-zinc-600/50;
+  }
+  .badge-live {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-900/40 text-emerald-300 border border-emerald-700/50;
+  }
+  .badge-unavail {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-zinc-800 text-zinc-500;
+  }
+  .card {
+    @apply bg-zinc-900 border border-zinc-800 rounded-lg;
+  }
+  .table-row-hover {
+    @apply hover:bg-zinc-800/50 transition-colors cursor-pointer;
+  }
+  .section-label {
+    @apply text-xs uppercase tracking-widest text-zinc-500 font-semibold;
+  }
+  .value-big {
+    @apply text-2xl font-bold text-zinc-100;
+  }
+  .trajectory-rising {
+    @apply text-emerald-400;
+  }
+  .trajectory-declining {
+    @apply text-red-400;
+  }
+  .trajectory-peaked {
+    @apply text-amber-400;
+  }
+  .trajectory-unknown {
+    @apply text-zinc-500;
+  }
+}
