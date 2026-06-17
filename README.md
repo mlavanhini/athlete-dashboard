@@ -21,11 +21,13 @@ The Transfermarkt wrapper is a separate FastAPI service you run locally. It scra
 ```bash
 git clone https://github.com/felipeall/transfermarkt-api.git
 cd transfermarkt-api
-pip install poetry
+pip3 install poetry
 poetry install --no-root
-python app/main.py
+python3 app/main.py
 # Runs on http://localhost:8000  — leave this terminal open
 ```
+
+> **macOS note:** use `pip3` and `python3`. If those aren't found either, install Python via `brew install python`.
 
 Or with Docker:
 ```bash
@@ -40,9 +42,9 @@ Verify it's up: `curl http://localhost:8000/players/search/Bellingham`
 
 ```bash
 cd backend
-pip install -r requirements.txt
-python -m playwright install chromium   # for SofaScore support (optional but recommended)
-python main.py
+pip3 install -r requirements.txt
+python3 -m playwright install chromium   # for SofaScore support (optional but recommended)
+python3 main.py
 # Runs on http://localhost:8001
 ```
 
@@ -68,7 +70,7 @@ npm run dev
 With the TM wrapper running on :8000:
 ```bash
 cd backend
-python smoke_test.py
+python3 smoke_test.py
 ```
 
 This hits one endpoint from each live source and prints formatted results.
