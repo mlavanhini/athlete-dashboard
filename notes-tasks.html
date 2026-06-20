@@ -171,6 +171,62 @@ header { display:flex; align-items:center; justify-content:space-between; paddin
 ::-webkit-scrollbar { width:4px; height:4px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+/* ── Mobile bottom nav ────────────────────────────────────────────────── */
+.mob-nav { display:none; position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); z-index:100; safe-area-inset-bottom:env(safe-area-inset-bottom); }
+.mob-nav a { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 0 10px; font-size:9px; font-weight:500; color:var(--muted); text-decoration:none; gap:3px; transition:color .12s; }
+.mob-nav a .mni { font-size:19px; line-height:1; }
+.mob-nav a.active { color:var(--accent); }
+.mob-nav a:hover { color:var(--text); }
+
+/* ── FAB ─────────────────────────────────────────────────────────────── */
+.fab { display:none; position:fixed; bottom:72px; right:18px; width:54px; height:54px; border-radius:50%; background:var(--accent); color:#fff; border:none; font-size:26px; line-height:1; cursor:pointer; z-index:90; box-shadow:0 4px 24px rgba(99,102,241,.55); align-items:center; justify-content:center; font-family:inherit; transition:transform .15s; }
+.fab:active { transform:scale(.93); }
+
+/* ── Mobile drawer ───────────────────────────────────────────────────── */
+.mob-drawer { position:fixed; left:0; top:0; bottom:0; width:82%; max-width:280px; background:var(--bg); border-right:1px solid var(--border); z-index:160; transform:translateX(-105%); transition:transform .24s cubic-bezier(.4,0,.2,1); overflow-y:auto; padding:60px 12px 80px; display:flex; flex-direction:column; gap:20px; }
+.mob-drawer.open { transform:translateX(0); }
+.mob-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:155; backdrop-filter:blur(2px); }
+.mob-overlay.open { display:block; }
+
+/* ── Mobile quick-add modal ──────────────────────────────────────────── */
+.mob-qadd-overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); align-items:flex-end; }
+.mob-qadd-overlay.open { display:flex; }
+.mob-qadd-sheet { background:var(--card); border:1px solid var(--border); border-radius:18px 18px 0 0; padding:20px 18px 36px; width:100%; display:flex; flex-direction:column; gap:12px; }
+.mob-qadd-sheet .drag-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 8px; }
+.mob-qadd-sheet h3 { font-size:14px; font-weight:700; }
+.mob-qadd-sheet .mqin { width:100%; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px; padding:12px 14px; color:var(--text); font-size:15px; font-family:inherit; outline:none; }
+.mob-qadd-sheet .mqin:focus { border-color:var(--accent); }
+.mob-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.mob-qadd-sheet .mq-lbl { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+.mob-qadd-sheet select, .mob-qadd-sheet input[type=date] { width:100%; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; padding:10px 10px; color:var(--text); font-size:13px; font-family:inherit; outline:none; color-scheme:dark; }
+.mob-add-btn { width:100%; padding:13px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-size:15px; font-weight:700; font-family:inherit; cursor:pointer; margin-top:4px; }
+
+/* ── Responsive overrides ────────────────────────────────────────────── */
+@media (max-width: 820px) {
+  body { height:auto; overflow:auto; }
+  .shell { height:auto; overflow:visible; }
+  .layout { height:auto; overflow:visible; }
+  .main { overflow:visible; }
+  .sidebar { display:none; }
+  .nav { display:none; }
+  .mob-nav { display:flex; }
+  .fab { display:flex; }
+  header { padding:10px 14px; position:sticky; top:0; z-index:50; }
+  .hdr-title { font-size:15px; }
+  .hdr-sub { display:none; }
+  .vault-badge { padding:5px 9px; font-size:11px; }
+  .vbtn { padding:5px 10px; font-size:11px; }
+  .qadd { display:none; }
+  .tgroup { padding:12px 14px; }
+  .ti { padding:9px 9px; }
+  .kcard { padding:9px 10px; }
+  .calwrap { padding:12px 10px; }
+  .calgrid { gap:2px; }
+  .calday { min-height:64px; padding:4px; }
+  .kanban { padding:10px 12px; gap:8px; }
+  .kcol { flex:0 0 260px; }
+}
 </style>
 </head>
 <body>
@@ -644,16 +700,18 @@ function renderSidebar() {
   const total = tasks.length;
 
   const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-  set('c-all', open.length);
-  set('c-today', td);
-  set('c-overdue', ov);
-  set('c-done', done);
+  set('c-all', open.length); set('mc-all', open.length);
+  set('c-today', td);       set('mc-today', td);
+  set('c-overdue', ov);     set('mc-overdue', ov);
+  set('c-done', done);      set('mc-done', done);
   set('c-high',   open.filter(t=>t.priority==='high').length);
   set('c-medium', open.filter(t=>t.priority==='medium').length);
   set('c-low',    open.filter(t=>t.priority==='low').length);
   set('s-done', done); set('s-open', open.length); set('s-ov', ov); set('s-td', td);
+  set('ms-done', done); set('ms-open', open.length); set('ms-ov', ov); set('ms-td', td);
   const pct = total ? Math.round(done/total*100) : 0;
   const pf = document.getElementById('pfill'); if(pf) pf.style.width = pct+'%';
+  const mpf = document.getElementById('mpfill'); if(mpf) mpf.style.width = pct+'%';
   set('plabel', pct+'% complete');
 
   // Subtitle
@@ -902,8 +960,122 @@ document.addEventListener('keydown', e => {
    BOOT
 ═══════════════════════════════════════════════════════════════════════════ */
 document.getElementById('qDue').value = todayStr();
+document.getElementById('mqDue').value  = todayStr();
 loadDemo();
 render();
+
+/* ── Mobile drawer / FAB logic ─────────────────────────────────────── */
+function toggleDrawer() {
+  document.getElementById('mobDrawer').classList.toggle('open');
+  document.getElementById('mobOverlay').classList.toggle('open');
+}
+function closeDrawer() {
+  document.getElementById('mobDrawer').classList.remove('open');
+  document.getElementById('mobOverlay').classList.remove('open');
+}
+function openMobAdd() {
+  document.getElementById('mobQadd').classList.add('open');
+  document.getElementById('mqTitle').focus();
+}
+function closeMobAdd() {
+  document.getElementById('mobQadd').classList.remove('open');
+}
+async function mobAddTask() {
+  const title = document.getElementById('mqTitle').value.trim();
+  if (!title) return;
+  const fileName = newFileName(title);
+  const task = {
+    id: demoMode ? nextNumId() : fileName,
+    fileName,
+    title,
+    status:   'todo',
+    priority: document.getElementById('mqPri').value,
+    category: document.getElementById('mqCat').value,
+    dueDate:  document.getElementById('mqDue').value || null,
+    project:'', contexts:[], created:todayStr(), completedAt:null, body:'',
+  };
+  tasks.unshift(task);
+  await writeTask(task);
+  document.getElementById('mqTitle').value = '';
+  closeMobAdd();
+  render();
+}
+document.getElementById('mqTitle').addEventListener('keydown', e => { if(e.key==='Enter') mobAddTask(); });
 </script>
+
+<!-- Mobile drawer (sidebar clone) -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeDrawer()"></div>
+<div class="mob-drawer" id="mobDrawer">
+  <div>
+    <div class="sb-title">Smart Lists</div>
+    <div class="fi" data-sml="all"     onclick="setFilter('all',null);closeDrawer()">    <span class="fl">📋 All Open</span>   <span class="badge" id="mc-all">0</span></div>
+    <div class="fi" data-sml="today"   onclick="setFilter('today',null);closeDrawer()">  <span class="fl">⚡ Today</span>      <span class="badge" id="mc-today">0</span></div>
+    <div class="fi" data-sml="overdue" onclick="setFilter('overdue',null);closeDrawer()"><span class="fl">🔴 Overdue</span>    <span class="badge" id="mc-overdue">0</span></div>
+    <div class="fi" data-sml="done"    onclick="setFilter('done',null);closeDrawer()">   <span class="fl">✅ Completed</span>  <span class="badge" id="mc-done">0</span></div>
+  </div>
+  <div>
+    <div class="sb-title">Priority</div>
+    <div class="fi" data-pri="high"   onclick="setFilter('priority','high');closeDrawer()">  <span class="fl"><div class="pdot" style="background:var(--red)"></div>High</span>   </div>
+    <div class="fi" data-pri="medium" onclick="setFilter('priority','medium');closeDrawer()"><span class="fl"><div class="pdot" style="background:var(--yellow)"></div>Medium</span></div>
+    <div class="fi" data-pri="low"    onclick="setFilter('priority','low');closeDrawer()">   <span class="fl"><div class="pdot" style="background:var(--green)"></div>Low</span>    </div>
+  </div>
+  <div>
+    <div class="sb-title">Overview</div>
+    <div class="stat-grid">
+      <div class="sbox"><div class="sbox-val" style="color:var(--green)"  id="ms-done">0</div><div class="sbox-lbl">Done</div></div>
+      <div class="sbox"><div class="sbox-val" style="color:var(--accent)" id="ms-open">0</div><div class="sbox-lbl">Open</div></div>
+      <div class="sbox"><div class="sbox-val" style="color:var(--red)"    id="ms-ov">0</div>  <div class="sbox-lbl">Overdue</div></div>
+      <div class="sbox"><div class="sbox-val" style="color:var(--yellow)" id="ms-td">0</div>  <div class="sbox-lbl">Today</div></div>
+    </div>
+    <div class="pbar"><div class="pfill" id="mpfill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openMobAdd()">+</button>
+
+<!-- Mobile quick-add sheet -->
+<div class="mob-qadd-overlay" id="mobQadd" onclick="if(event.target===this)closeMobAdd()">
+  <div class="mob-qadd-sheet">
+    <div class="drag-handle"></div>
+    <h3>New Task</h3>
+    <input class="mqin" id="mqTitle" type="text" placeholder="What needs to be done?">
+    <div class="mob-row">
+      <div>
+        <div class="mq-lbl">Priority</div>
+        <select id="mqPri">
+          <option value="medium">⚡ Medium</option>
+          <option value="high">🔴 High</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div>
+        <div class="mq-lbl">Category</div>
+        <select id="mqCat">
+          <option value="Training">🏃 Training</option>
+          <option value="Nutrition">🥗 Nutrition</option>
+          <option value="Recovery">💤 Recovery</option>
+          <option value="Personal">👤 Personal</option>
+          <option value="Work">💼 Work</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <div class="mq-lbl">Due Date</div>
+      <input type="date" id="mqDue">
+    </div>
+    <button class="mob-add-btn" onclick="mobAddTask()">Add Task</button>
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="mob-nav">
+  <a href="index.html"><span class="mni">📊</span>Dashboard</a>
+  <a href="calendar.html"><span class="mni">📅</span>Calendar</a>
+  <a href="notes-tasks.html" class="active"><span class="mni">📂</span>Notes</a>
+  <a href="tasks.html"><span class="mni">✅</span>Tasks</a>
+  <a href="#" onclick="toggleDrawer();return false"><span class="mni">⚙</span>Filters</a>
+</nav>
+
 </body>
 </html>
