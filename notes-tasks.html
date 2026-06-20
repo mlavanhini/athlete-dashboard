@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcelo · Notes & Tasks</title>
+<style>
+:root {
+  --bg: #0d0f14; --card: #161a23; --card2: #1c2130; --border: #252b38;
+  --text: #e2e8f0; --muted: #64748b; --muted2: #475569;
+  --green: #22c55e; --yellow: #eab308; --red: #ef4444;
+  --blue: #3b82f6; --purple: #a855f7; --orange: #f97316;
+  --teal: #14b8a6; --accent: #6366f1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+/* ── Nav ─────────────────────────────────────────────────────────────── */
+.nav { display:flex; gap:4px; padding:10px 24px; background:#0d0f14; border-bottom:1px solid var(--border); flex-shrink:0; }
+.nav a { padding:6px 14px; border-radius:8px; font-size:13px; font-weight:500; text-decoration:none; color:var(--muted); transition:all .15s; }
+.nav a:hover { color:var(--text); background:rgba(255,255,255,.06); }
+.nav a.active { color:var(--text); background:rgba(255,255,255,.08); }
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+header { display:flex; align-items:center; justify-content:space-between; padding:12px 24px; border-bottom:1px solid var(--border); background:rgba(22,26,35,.97); backdrop-filter:blur(12px); flex-shrink:0; gap:12px; }
+.hdr-left { display:flex; align-items:center; gap:14px; }
+.hdr-title { font-size:16px; font-weight:700; letter-spacing:-.3px; }
+.hdr-sub { font-size:11px; color:var(--muted); }
+.vault-badge { display:flex; align-items:center; gap:7px; background:var(--card); border:1px solid var(--border); border-radius:9px; padding:6px 12px; font-size:12px; cursor:pointer; transition:background .15s; white-space:nowrap; }
+.vault-badge:hover { background:rgba(255,255,255,.06); }
+.vault-badge .dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+.vault-badge.demo .dot { background:var(--yellow); }
+
+.view-toggle { display:flex; gap:3px; background:var(--card); border:1px solid var(--border); border-radius:9px; padding:3px; flex-shrink:0; }
+.vbtn { padding:5px 13px; border-radius:6px; font-size:12px; font-weight:500; border:none; cursor:pointer; background:transparent; color:var(--muted); transition:all .12s; font-family:inherit; }
+.vbtn.active { background:rgba(255,255,255,.09); color:var(--text); }
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+.layout { display:flex; flex:1; overflow:hidden; }
+
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+.sidebar { width:220px; flex-shrink:0; border-right:1px solid var(--border); padding:16px 12px; overflow-y:auto; display:flex; flex-direction:column; gap:20px; background:rgba(13,15,20,.5); }
+.sb-title { font-size:9px; text-transform:uppercase; letter-spacing:.9px; color:var(--muted2); font-weight:600; margin-bottom:5px; }
+.fi { display:flex; align-items:center; justify-content:space-between; padding:6px 9px; border-radius:7px; cursor:pointer; font-size:13px; color:var(--muted); transition:all .12s; user-select:none; }
+.fi:hover { background:rgba(255,255,255,.04); color:var(--text); }
+.fi.on { background:rgba(99,102,241,.13); color:var(--accent); }
+.fi .fl { display:flex; align-items:center; gap:7px; }
+.fi .badge { font-size:10px; background:rgba(255,255,255,.07); padding:1px 6px; border-radius:8px; min-width:20px; text-align:center; }
+.fi.on .badge { background:rgba(99,102,241,.2); }
+.pdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.sbox { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:9px; padding:9px 6px; text-align:center; }
+.sbox-val { font-size:19px; font-weight:800; letter-spacing:-.5px; }
+.sbox-lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-top:1px; }
+
+.pbar { height:3px; background:var(--border); border-radius:2px; margin-top:9px; overflow:hidden; }
+.pfill { height:100%; border-radius:2px; background:var(--accent); transition:width .5s; }
+.plabel { font-size:10px; color:var(--muted); text-align:center; margin-top:4px; }
+
+/* ── Main ────────────────────────────────────────────────────────────── */
+.main { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+
+/* ── Quick add ───────────────────────────────────────────────────────── */
+.qadd { padding:12px 20px; border-bottom:1px solid var(--border); background:var(--card); flex-shrink:0; }
+.qadd-row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.qin { flex:1; min-width:160px; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; padding:7px 12px; color:var(--text); font-size:13px; font-family:inherit; outline:none; transition:border-color .15s; }
+.qin:focus { border-color:var(--accent); background:rgba(99,102,241,.05); }
+.qin::placeholder { color:var(--muted); }
+.qsel { background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; padding:7px 9px; color:var(--text); font-size:11px; font-family:inherit; outline:none; cursor:pointer; }
+.qsel option { background:#1a1f2d; color:var(--text); }
+.qdate { background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; padding:7px 9px; color:var(--text); font-size:11px; font-family:inherit; outline:none; color-scheme:dark; width:132px; }
+.qadd-btn { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.qadd-btn:hover { opacity:.85; }
+
+/* ── List view ───────────────────────────────────────────────────────── */
+.tgroup { padding:14px 20px; }
+.tgroup + .tgroup { border-top:1px solid rgba(37,43,56,.4); }
+.gh { display:flex; align-items:center; gap:7px; margin-bottom:9px; }
+.gdot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.gtitle { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
+.gcnt { font-size:10px; background:rgba(255,255,255,.06); padding:1px 6px; border-radius:8px; color:var(--muted); }
+
+.ti { display:flex; align-items:flex-start; gap:9px; padding:8px 10px; border-radius:9px; border:1px solid transparent; margin-bottom:4px; transition:all .12s; position:relative; cursor:pointer; }
+.ti:hover { background:rgba(255,255,255,.03); border-color:var(--border); }
+.ti.done { opacity:.38; }
+.ti.done .tt { text-decoration:line-through; color:var(--muted); }
+.tck { width:16px; height:16px; border:2px solid var(--border); border-radius:4px; flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; background:transparent; }
+.tck:hover { border-color:var(--accent); }
+.tck.y { background:var(--accent); border-color:var(--accent); }
+.tck.y::after { content:'✓'; color:#fff; font-size:9px; font-weight:700; }
+.tck.ip { border-color:var(--blue); }
+.tck.ip::after { content:'›'; color:var(--blue); font-size:12px; font-weight:700; line-height:.9; }
+.tpbar { width:3px; border-radius:2px; align-self:stretch; flex-shrink:0; min-height:14px; margin-top:2px; }
+.tb { flex:1; min-width:0; }
+.tt { font-size:13px; font-weight:500; margin-bottom:4px; line-height:1.4; }
+.tm { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.tag { display:inline-flex; align-items:center; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+.dc { font-size:10px; color:var(--muted); display:flex; align-items:center; gap:2px; }
+.dc.ov { color:var(--red); }
+.dc.td { color:var(--yellow); }
+.delbtn { position:absolute; right:7px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:var(--muted); cursor:pointer; font-size:12px; opacity:0; transition:opacity .12s; padding:3px 5px; border-radius:4px; }
+.ti:hover .delbtn { opacity:1; }
+.delbtn:hover { color:var(--red); background:rgba(239,68,68,.1); }
+
+/* ── Kanban ──────────────────────────────────────────────────────────── */
+.kanban { display:flex; gap:10px; padding:16px 20px; overflow-x:auto; height:100%; align-items:flex-start; }
+.kcol { flex:0 0 280px; background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:12px; display:flex; flex-direction:column; max-height:calc(100vh - 200px); }
+.kch { padding:12px 14px 10px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.kch-dot { width:8px; height:8px; border-radius:50%; }
+.kch-title { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.7px; }
+.kch-cnt { font-size:11px; background:rgba(255,255,255,.07); padding:2px 7px; border-radius:8px; color:var(--muted); margin-left:auto; }
+.kbody { padding:10px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:6px; }
+.kcard { background:var(--card); border:1px solid var(--border); border-radius:9px; padding:10px 12px; cursor:pointer; transition:border-color .12s; }
+.kcard:hover { border-color:rgba(99,102,241,.4); }
+.kcard .ktt { font-size:12px; font-weight:500; line-height:1.4; margin-bottom:6px; }
+.kcard .km { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+.kempty { text-align:center; padding:24px 12px; color:var(--muted2); font-size:12px; }
+
+/* ── Calendar ────────────────────────────────────────────────────────── */
+.calwrap { padding:16px 20px; }
+.calh { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.calm { font-size:17px; font-weight:700; letter-spacing:-.5px; flex:1; }
+.calnav { background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:7px; padding:5px 11px; color:var(--text); cursor:pointer; font-size:12px; font-family:inherit; transition:background .12s; }
+.calnav:hover { background:rgba(255,255,255,.1); }
+.calgrid { display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; }
+.caldh { text-align:center; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); padding:5px 0; }
+.calday { min-height:82px; background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:8px; padding:6px; transition:background .12s; }
+.calday.calnow { border-color:var(--accent); background:rgba(99,102,241,.06); }
+.calday.calother { opacity:.22; }
+.calnum { font-size:11px; font-weight:600; margin-bottom:3px; }
+.calnow .calnum { color:var(--accent); }
+.calpill { font-size:9px; padding:2px 5px; border-radius:3px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; cursor:pointer; }
+.calmore { font-size:9px; color:var(--muted); margin-top:1px; }
+
+/* ── Empty ────────────────────────────────────────────────────────────── */
+.empty { text-align:center; padding:60px 24px; color:var(--muted); }
+.empty .ei { font-size:30px; margin-bottom:10px; }
+.empty .em { font-size:13px; }
+.empty .es { font-size:11px; margin-top:4px; opacity:.6; }
+
+/* ── Modal ────────────────────────────────────────────────────────────── */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+.modal { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; width:520px; max-width:calc(100vw - 32px); box-shadow:0 24px 64px rgba(0,0,0,.65); display:flex; flex-direction:column; gap:14px; }
+.modal-title { font-size:14px; font-weight:700; }
+.ml { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; }
+.mi { width:100%; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; font-family:inherit; outline:none; transition:border-color .15s; }
+.mi:focus { border-color:var(--accent); }
+.mi-ta { min-height:80px; resize:vertical; font-size:12px; line-height:1.6; }
+.mgrid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.mrow { }
+.mbtns { display:flex; gap:7px; justify-content:flex-end; }
+.mbtn-c { padding:7px 14px; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; font-family:inherit; cursor:pointer; }
+.mbtn-s { padding:7px 16px; border-radius:7px; border:none; background:var(--accent); color:#fff; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; }
+.mbtn-s:hover { opacity:.85; }
+.mbtn-del { padding:7px 14px; border-radius:7px; border:1px solid rgba(239,68,68,.3); background:transparent; color:var(--red); font-size:12px; font-family:inherit; cursor:pointer; margin-right:auto; }
+.mbtn-del:hover { background:rgba(239,68,68,.1); }
+
+/* ── File info ────────────────────────────────────────────────────────── */
+.finfo { font-size:10px; color:var(--muted2); font-family:monospace; background:rgba(255,255,255,.04); padding:4px 8px; border-radius:5px; }
+
+/* ── Welcome screen ───────────────────────────────────────────────────── */
+.welcome { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:50; pointer-events:none; }
+.wcard { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:32px 36px; max-width:400px; text-align:center; pointer-events:all; box-shadow:0 24px 64px rgba(0,0,0,.5); }
+.wcard h2 { font-size:17px; font-weight:700; margin-bottom:8px; }
+.wcard p { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:20px; }
+.wbtn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:9px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+.wbtn-p { background:var(--accent); color:#fff; margin-right:8px; }
+.wbtn-s { background:rgba(255,255,255,.08); color:var(--text); border:1px solid var(--border); }
+
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">📊 Dashboard</a>
+  <a href="calendar.html">📅 Calendar</a>
+  <a href="nutrition.html">🥗 Nutrition</a>
+  <a href="mealplan.html">🍽️ Meal Plan</a>
+  <a href="tasks.html">✅ Tasks</a>
+  <a href="notes-tasks.html" class="active">📂 Notes</a>
+</nav>
+
+<header>
+  <div class="hdr-left">
+    <div>
+      <div class="hdr-title">Notes &amp; Tasks</div>
+      <div class="hdr-sub" id="hdrSub">Loading…</div>
+    </div>
+    <div class="vault-badge demo" id="vaultBadge" onclick="openFolder()" title="Click to open a folder of markdown files">
+      <span class="dot"></span>
+      <span id="vaultName">Demo Mode</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="view-toggle">
+      <button class="vbtn active" id="vbList" onclick="setView('list')">☰ List</button>
+      <button class="vbtn" id="vbKan"  onclick="setView('kanban')">⊞ Kanban</button>
+      <button class="vbtn" id="vbCal"  onclick="setView('calendar')">▦ Calendar</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div>
+      <div class="sb-title">Smart Lists</div>
+      <div class="fi" data-sml="all"     onclick="setFilter('all',null)">    <span class="fl">📋 All Open</span>   <span class="badge" id="c-all">0</span></div>
+      <div class="fi" data-sml="today"   onclick="setFilter('today',null)">  <span class="fl">⚡ Today</span>      <span class="badge" id="c-today">0</span></div>
+      <div class="fi" data-sml="overdue" onclick="setFilter('overdue',null)"><span class="fl">🔴 Overdue</span>    <span class="badge" id="c-overdue">0</span></div>
+      <div class="fi" data-sml="done"    onclick="setFilter('done',null)">   <span class="fl">✅ Completed</span>  <span class="badge" id="c-done">0</span></div>
+    </div>
+    <div>
+      <div class="sb-title">Categories</div>
+      <div id="catFilters"></div>
+    </div>
+    <div>
+      <div class="sb-title">Priority</div>
+      <div class="fi" data-pri="high"   onclick="setFilter('priority','high')">  <span class="fl"><div class="pdot" style="background:var(--red)"></div>High</span>   <span class="badge" id="c-high">0</span></div>
+      <div class="fi" data-pri="medium" onclick="setFilter('priority','medium')"><span class="fl"><div class="pdot" style="background:var(--yellow)"></div>Medium</span><span class="badge" id="c-medium">0</span></div>
+      <div class="fi" data-pri="low"    onclick="setFilter('priority','low')">   <span class="fl"><div class="pdot" style="background:var(--green)"></div>Low</span>    <span class="badge" id="c-low">0</span></div>
+    </div>
+    <div>
+      <div class="sb-title">Projects</div>
+      <div id="projFilters"></div>
+    </div>
+    <div>
+      <div class="sb-title">Overview</div>
+      <div class="stat-grid">
+        <div class="sbox"><div class="sbox-val" style="color:var(--green)"  id="s-done">0</div><div class="sbox-lbl">Done</div></div>
+        <div class="sbox"><div class="sbox-val" style="color:var(--accent)" id="s-open">0</div><div class="sbox-lbl">Open</div></div>
+        <div class="sbox"><div class="sbox-val" style="color:var(--red)"    id="s-ov">0</div>  <div class="sbox-lbl">Overdue</div></div>
+        <div class="sbox"><div class="sbox-val" style="color:var(--yellow)" id="s-td">0</div>  <div class="sbox-lbl">Today</div></div>
+      </div>
+      <div class="pbar"><div class="pfill" id="pfill" style="width:0%"></div></div>
+      <div class="plabel" id="plabel">0% complete</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main" style="position:relative">
+    <!-- Quick add -->
+    <div class="qadd">
+      <div class="qadd-row">
+        <input class="qin" id="qTitle" type="text" placeholder="New task… (Enter)" onkeydown="if(event.key==='Enter')addTask()">
+        <select class="qsel" id="qPri">
+          <option value="medium">⚡ Med</option>
+          <option value="high">🔴 High</option>
+          <option value="low">🟢 Low</option>
+        </select>
+        <select class="qsel" id="qCat">
+          <option value="Training">🏃 Training</option>
+          <option value="Nutrition">🥗 Nutrition</option>
+          <option value="Recovery">💤 Recovery</option>
+          <option value="Personal">👤 Personal</option>
+          <option value="Work">💼 Work</option>
+        </select>
+        <input class="qdate" id="qDue" type="date">
+        <button class="qadd-btn" onclick="addTask()">+ Add</button>
+      </div>
+    </div>
+    <!-- Views -->
+    <div id="vList"></div>
+    <div id="vKan"  style="display:none"></div>
+    <div id="vCal"  style="display:none"></div>
+  </main>
+</div>
+
+<!-- Edit Modal -->
+<div class="overlay" id="editModal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">Edit Task</div>
+    <div class="mrow">
+      <div class="ml">Title</div>
+      <input class="mi" id="eTitle" type="text">
+    </div>
+    <div class="mrow">
+      <div class="ml">Notes / Body</div>
+      <textarea class="mi mi-ta" id="eBody" placeholder="Markdown body, links, context…"></textarea>
+    </div>
+    <div class="mgrid">
+      <div class="mrow">
+        <div class="ml">Status</div>
+        <select class="mi qsel" id="eStatus" style="width:100%">
+          <option value="todo">Todo</option>
+          <option value="in-progress">In Progress</option>
+          <option value="done">Done</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="mrow">
+        <div class="ml">Priority</div>
+        <select class="mi qsel" id="ePri" style="width:100%">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="mrow">
+        <div class="ml">Due Date</div>
+        <input class="mi" id="eDue" type="date" style="color-scheme:dark">
+      </div>
+    </div>
+    <div class="mgrid">
+      <div class="mrow">
+        <div class="ml">Category</div>
+        <select class="mi qsel" id="eCat" style="width:100%">
+          <option value="Training">Training</option>
+          <option value="Nutrition">Nutrition</option>
+          <option value="Recovery">Recovery</option>
+          <option value="Personal">Personal</option>
+          <option value="Work">Work</option>
+        </select>
+      </div>
+      <div class="mrow">
+        <div class="ml">Project</div>
+        <input class="mi" id="eProj" type="text" placeholder="e.g. Race Prep">
+      </div>
+      <div class="mrow">
+        <div class="ml">Contexts</div>
+        <input class="mi" id="eCtx" type="text" placeholder="tag1, tag2">
+      </div>
+    </div>
+    <div class="mrow">
+      <div class="finfo" id="eFname"></div>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn-del" onclick="deleteTask(editId,true)">Delete</button>
+      <button class="mbtn-c" onclick="closeModal()">Cancel</button>
+      <button class="mbtn-s" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════════════════════ */
+const CATS = {
+  Training: { color:'#3b82f6', icon:'🏃' },
+  Nutrition: { color:'#f97316', icon:'🥗' },
+  Recovery:  { color:'#14b8a6', icon:'💤' },
+  Personal:  { color:'#a855f7', icon:'👤' },
+  Work:      { color:'#22c55e', icon:'💼' },
+};
+const PRIO = {
+  high:   { color:'#ef4444', label:'High' },
+  medium: { color:'#eab308', label:'Med' },
+  low:    { color:'#22c55e', label:'Low' },
+};
+const STATUS_CFG = {
+  'todo':        { label:'Todo',        color:'#64748b' },
+  'in-progress': { label:'In Progress', color:'#3b82f6' },
+  'done':        { label:'Done',        color:'#22c55e' },
+  'cancelled':   { label:'Cancelled',   color:'#475569' },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════════════ */
+let tasks    = [];
+let filter   = { type:'all', value:null };
+let view     = 'list';
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let editId   = null;
+let dirHandle = null;
+let demoMode = true;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   YAML PARSER / SERIALIZER
+═══════════════════════════════════════════════════════════════════════════ */
+function parseYAML(text) {
+  const r = {};
+  for (const line of text.split('\n')) {
+    const m = line.match(/^([\w-]+):\s*(.*)$/);
+    if (!m) continue;
+    let v = m[2].trim();
+    if (v.startsWith('[') && v.endsWith(']'))
+      v = v.slice(1,-1).split(',').map(s=>s.trim()).filter(Boolean);
+    else if (v === 'true') v = true;
+    else if (v === 'false') v = false;
+    else if (/^['"].*['"]$/.test(v)) v = v.slice(1,-1);
+    r[m[1]] = v;
+  }
+  return r;
+}
+
+function serializeYAML(obj) {
+  return Object.entries(obj)
+    .filter(([,v]) => v !== null && v !== undefined && v !== '')
+    .map(([k,v]) => Array.isArray(v) ? `${k}: [${v.join(', ')}]` : `${k}: ${v}`)
+    .join('\n');
+}
+
+function parseMD(content) {
+  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (m) return { fm: parseYAML(m[1]), body: m[2].trim() };
+  return { fm: {}, body: content.trim() };
+}
+
+function serializeMD(fm, body) {
+  return `---\n${serializeYAML(fm)}\n---\n\n${body || ''}`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FILE SYSTEM ACCESS API
+═══════════════════════════════════════════════════════════════════════════ */
+async function openFolder() {
+  if (!window.showDirectoryPicker) {
+    alert('File System Access API not supported in this browser.\nUse Chrome, Edge, or Arc for real file access.');
+    return;
+  }
+  try {
+    dirHandle = await window.showDirectoryPicker({ mode:'readwrite' });
+    demoMode  = false;
+    await loadFromFolder();
+    updateVaultBadge();
+  } catch (e) {
+    if (e.name !== 'AbortError') { console.error(e); alert('Could not open folder: ' + e.message); }
+  }
+}
+
+async function scanDir(handle, depth = 0) {
+  const entries = [];
+  for await (const e of handle.values()) {
+    if (e.kind === 'file' && e.name.endsWith('.md')) {
+      entries.push(e);
+    } else if (e.kind === 'directory' && depth < 1 && !e.name.startsWith('.')) {
+      const sub = await scanDir(e, depth + 1);
+      entries.push(...sub);
+    }
+  }
+  return entries;
+}
+
+async function loadFromFolder() {
+  const entries = await scanDir(dirHandle);
+  const loaded  = [];
+  for (const e of entries) {
+    try {
+      const file    = await e.getFile();
+      const content = await file.text();
+      const { fm, body } = parseMD(content);
+      if (!fm.status && !fm.due && !fm.priority && !fm.title) continue; // skip non-task files
+      loaded.push(normalizeTask(fm, body, e.name));
+    } catch (_) { /* skip unreadable */ }
+  }
+  tasks = loaded;
+  render();
+}
+
+function normalizeTask(fm, body, fileName) {
+  return {
+    id:       fileName,
+    fileName,
+    title:    fm.title || fileName.replace(/\.md$/,'').replace(/^\d{4}-\d{2}-\d{2}-?/,'').replace(/-/g,' '),
+    status:   fm.status   || 'todo',
+    priority: fm.priority || 'medium',
+    category: fm.category || 'Personal',
+    dueDate:  fm.due      || null,
+    project:  fm.project  || '',
+    contexts: Array.isArray(fm.contexts) ? fm.contexts : (fm.contexts ? fm.contexts.split(',').map(s=>s.trim()) : []),
+    created:  fm.created  || todayStr(),
+    completedAt: fm.completedAt || null,
+    body,
+  };
+}
+
+async function writeTask(task) {
+  if (!dirHandle) { saveDemo(); return; }
+  const fm = {
+    title:    task.title,
+    status:   task.status,
+    due:      task.dueDate || '',
+    priority: task.priority,
+    category: task.category,
+    project:  task.project  || '',
+    contexts: task.contexts || [],
+    created:  task.created  || todayStr(),
+  };
+  if (task.completedAt) fm.completedAt = task.completedAt;
+  const content = serializeMD(fm, task.body || '');
+  try {
+    const fh = await dirHandle.getFileHandle(task.fileName, { create:true });
+    const w  = await fh.createWritable();
+    await w.write(content); await w.close();
+  } catch (e) { console.error('Write failed:', e); }
+}
+
+async function deleteFileFromDisk(fileName) {
+  if (!dirHandle) return;
+  try { await dirHandle.removeEntry(fileName); } catch (e) { console.error(e); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DEMO / LOCALSTORAGE
+═══════════════════════════════════════════════════════════════════════════ */
+const SEEDS = [
+  { id:'1', fileName:'2026-06-17-buy-running-shoes.md',         title:'Buy new running shoes (at 650 km)',         status:'todo',        priority:'high',   category:'Training',  dueDate:'2026-06-17', project:'Gear',      contexts:['shopping'],                          created:'2026-06-10', completedAt:null, body:'Check Nike Vomero 18 or Saucony Endorphin Speed.' },
+  { id:'2', fileName:'2026-06-18-book-physio.md',               title:'Book physio check-up',                      status:'todo',        priority:'high',   category:'Recovery',  dueDate:'2026-06-18', project:'Health',    contexts:['appointments'],                       created:'2026-06-12', completedAt:null, body:'Left calf tightness since tempo run.' },
+  { id:'3', fileName:'2026-06-19-review-training-load.md',      title:'Review weekly training load in TrainingPeaks', status:'in-progress',priority:'high', category:'Training',  dueDate:'2026-06-19', project:'Race Prep', contexts:['weekly-review'],                      created:'2026-06-15', completedAt:null, body:'Check CTL/ATL ratio. TSB currently at -13.6.' },
+  { id:'4', fileName:'2026-06-19-confirm-intervals-coach.md',   title:'Confirm intervals workout plan with coach', status:'todo',        priority:'high',   category:'Training',  dueDate:'2026-06-19', project:'Race Prep', contexts:['coach'],                              created:'2026-06-16', completedAt:null, body:'' },
+  { id:'5', fileName:'2026-06-19-log-nutrition.md',             title:'Log post-run nutrition macros',             status:'done',        priority:'medium', category:'Nutrition', dueDate:'2026-06-19', project:'',          contexts:['daily'],                              created:'2026-06-19', completedAt:'2026-06-19', body:'Protein + carbs within 30 min post-run.' },
+  { id:'6', fileName:'2026-06-20-recovery-massage.md',          title:'Schedule recovery massage',                 status:'todo',        priority:'medium', category:'Recovery',  dueDate:'2026-06-20', project:'Health',    contexts:['appointments'],                       created:'2026-06-15', completedAt:null, body:'' },
+  { id:'7', fileName:'2026-06-21-meal-prep.md',                 title:'Meal prep for race week',                   status:'todo',        priority:'medium', category:'Nutrition', dueDate:'2026-06-21', project:'Race Prep', contexts:['cooking'],                            created:'2026-06-16', completedAt:null, body:'High-carb focus. Check pasta + rice recipes.' },
+  { id:'8', fileName:'2026-06-22-race-nutrition-plan.md',       title:'Prepare race-day nutrition plan',           status:'todo',        priority:'high',   category:'Nutrition', dueDate:'2026-06-22', project:'Race Prep', contexts:['strategy'],                          created:'2026-06-14', completedAt:null, body:'Carb load strategy + gel timing every 40 min.' },
+  { id:'9', fileName:'2026-06-23-update-dashboard.md',          title:'Update dashboard with COROS data',          status:'todo',        priority:'low',    category:'Work',      dueDate:'2026-06-23', project:'Dashboard', contexts:['dev'],                                created:'2026-06-17', completedAt:null, body:'' },
+  { id:'10', fileName:'2026-06-25-whoop-sleep-targets.md',      title:'Update sleep targets in WHOOP',             status:'todo',        priority:'low',    category:'Recovery',  dueDate:'2026-06-25', project:'',          contexts:['app-settings'],                       created:'2026-06-18', completedAt:null, body:'' },
+  { id:'11', fileName:'2026-06-26-vo2max-schedule.md',          title:'Review VO2max testing schedule',            status:'todo',        priority:'medium', category:'Training',  dueDate:'2026-06-26', project:'Race Prep', contexts:['planning'],                           created:'2026-06-18', completedAt:null, body:'' },
+  { id:'12', fileName:'2026-no-date-order-creatine.md',         title:'Order creatine monohydrate',                status:'todo',        priority:'low',    category:'Nutrition', dueDate:null,          project:'',          contexts:['shopping'],                          created:'2026-06-18', completedAt:null, body:'Creapure brand preferred.' },
+];
+
+function saveDemo() { localStorage.setItem('nt_tasks_v1', JSON.stringify(tasks)); }
+function loadDemo() {
+  const s = localStorage.getItem('nt_tasks_v1');
+  tasks = s ? JSON.parse(s) : SEEDS.map(t=>({...t}));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════════════════════ */
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function isOverdue(d) { return d && d < todayStr(); }
+function isToday(d)   { return d === todayStr(); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function slugify(t) { return t.toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,48); }
+function newFileName(title) { return `${todayStr()}-${slugify(title)}.md`; }
+function nextNumId() { return (tasks.length ? Math.max(...tasks.map(t=>parseInt(t.id)||0)) + 1 : 1).toString(); }
+
+function relDate(d) {
+  if (!d) return null;
+  const diff = Math.round((new Date(d+'T12:00:00') - new Date()) / 86400000);
+  if (diff < -1) return `${Math.abs(diff)}d overdue`;
+  if (diff === -1) return 'Yesterday';
+  if (diff === 0)  return 'Today';
+  if (diff === 1)  return 'Tomorrow';
+  if (diff < 7)   return `In ${diff}d`;
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function isActive(t) { return t.status !== 'done' && t.status !== 'cancelled'; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FILTER & GROUP
+═══════════════════════════════════════════════════════════════════════════ */
+function getVisible() {
+  const { type, value } = filter;
+  if (type === 'all')      return tasks.filter(isActive);
+  if (type === 'today')    return tasks.filter(t => isActive(t) && isToday(t.dueDate));
+  if (type === 'overdue')  return tasks.filter(t => isActive(t) && isOverdue(t.dueDate));
+  if (type === 'done')     return tasks.filter(t => !isActive(t));
+  if (type === 'category') return tasks.filter(t => isActive(t) && t.category === value);
+  if (type === 'priority') return tasks.filter(t => isActive(t) && t.priority === value);
+  if (type === 'project')  return tasks.filter(t => isActive(t) && t.project === value);
+  return tasks.filter(isActive);
+}
+
+function groupByTime(list) {
+  const t = todayStr();
+  const d1 = new Date(); d1.setDate(d1.getDate()+1); const tom = d1.toISOString().split('T')[0];
+  const d7 = new Date(); d7.setDate(d7.getDate()+7); const wk  = d7.toISOString().split('T')[0];
+  const po = { high:0, medium:1, low:2 };
+  const gs = {
+    overdue:  { label:'Overdue',     color:'#ef4444', items:[] },
+    today:    { label:'Today',       color:'#eab308', items:[] },
+    tomorrow: { label:'Tomorrow',    color:'#3b82f6', items:[] },
+    week:     { label:'This Week',   color:'#6366f1', items:[] },
+    later:    { label:'Later',       color:'#64748b', items:[] },
+    none:     { label:'No Due Date', color:'#64748b', items:[] },
+  };
+  for (const x of list) {
+    if (!x.dueDate)           gs.none.items.push(x);
+    else if (x.dueDate < t)  gs.overdue.items.push(x);
+    else if (x.dueDate === t) gs.today.items.push(x);
+    else if (x.dueDate === tom) gs.tomorrow.items.push(x);
+    else if (x.dueDate <= wk)  gs.week.items.push(x);
+    else gs.later.items.push(x);
+  }
+  for (const g of Object.values(gs)) g.items.sort((a,b) => po[a.priority] - po[b.priority]);
+  return gs;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARD HTML
+═══════════════════════════════════════════════════════════════════════════ */
+function taskCard(t, mini = false) {
+  const cat  = CATS[t.category]  || CATS.Personal;
+  const prio = PRIO[t.priority]  || PRIO.medium;
+  const rd   = relDate(t.dueDate);
+  const ov   = isOverdue(t.dueDate) ? 'ov' : isToday(t.dueDate) ? 'td' : '';
+  const done = t.status === 'done' || t.status === 'cancelled';
+  const ckCls = done ? 'y' : t.status === 'in-progress' ? 'ip' : '';
+  const ctxHtml = (t.contexts||[]).slice(0,2).map(c=>`<span class="tag" style="background:rgba(255,255,255,.06);color:var(--muted)">#${esc(c)}</span>`).join('');
+
+  if (mini) return `
+    <div class="kcard" onclick="openEdit('${esc(t.id)}')">
+      <div class="ktt">${esc(t.title)}</div>
+      <div class="km">
+        <span class="tag" style="background:${cat.color}20;color:${cat.color}">${cat.icon} ${esc(t.category)}</span>
+        ${rd ? `<span class="dc ${ov}">📅 ${esc(rd)}</span>` : ''}
+      </div>
+    </div>`;
+
+  return `
+    <div class="ti${done?' done':''}" id="ti-${esc(t.id)}">
+      <div class="tck ${ckCls}" onclick="cycleStatus('${esc(t.id)}',event)" title="Click to toggle status"></div>
+      <div class="tpbar" style="background:${prio.color}"></div>
+      <div class="tb" onclick="openEdit('${esc(t.id)}')">
+        <div class="tt">${esc(t.title)}</div>
+        <div class="tm">
+          <span class="tag" style="background:${cat.color}20;color:${cat.color}">${cat.icon} ${esc(t.category)}</span>
+          <span class="tag" style="background:${prio.color}20;color:${prio.color}">${prio.label}</span>
+          ${t.project ? `<span class="tag" style="background:rgba(99,102,241,.15);color:var(--accent)">◈ ${esc(t.project)}</span>` : ''}
+          ${rd ? `<span class="dc ${ov}">📅 ${esc(rd)}</span>` : ''}
+          ${ctxHtml}
+        </div>
+      </div>
+      <button class="delbtn" onclick="deleteTask('${esc(t.id)}',false,event)" title="Delete">✕</button>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════════════════════ */
+function render() { renderSidebar(); renderView(); }
+
+function renderView() {
+  if (view === 'list')     renderList();
+  else if (view === 'kanban') renderKanban();
+  else renderCal();
+}
+
+function renderSidebar() {
+  const open = tasks.filter(isActive);
+  const ov   = open.filter(t => isOverdue(t.dueDate)).length;
+  const td   = open.filter(t => isToday(t.dueDate)).length;
+  const done = tasks.filter(t => !isActive(t)).length;
+  const total = tasks.length;
+
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('c-all', open.length);
+  set('c-today', td);
+  set('c-overdue', ov);
+  set('c-done', done);
+  set('c-high',   open.filter(t=>t.priority==='high').length);
+  set('c-medium', open.filter(t=>t.priority==='medium').length);
+  set('c-low',    open.filter(t=>t.priority==='low').length);
+  set('s-done', done); set('s-open', open.length); set('s-ov', ov); set('s-td', td);
+  const pct = total ? Math.round(done/total*100) : 0;
+  const pf = document.getElementById('pfill'); if(pf) pf.style.width = pct+'%';
+  set('plabel', pct+'% complete');
+
+  // Subtitle
+  set('hdrSub', `${open.length} open · ${done} done${ov?' · '+ov+' overdue':''}`);
+
+  // Category filters
+  const cf = document.getElementById('catFilters');
+  if (cf) cf.innerHTML = Object.entries(CATS).map(([cat,cfg]) => {
+    const cnt = open.filter(t=>t.category===cat).length;
+    const on  = filter.type==='category' && filter.value===cat ? ' on' : '';
+    return `<div class="fi${on}" onclick="setFilter('category','${cat}')"><span class="fl">${cfg.icon} ${cat}</span><span class="badge">${cnt}</span></div>`;
+  }).join('');
+
+  // Project filters (dynamic)
+  const projects = [...new Set(open.map(t=>t.project).filter(Boolean))].sort();
+  const pf2 = document.getElementById('projFilters');
+  if (pf2) pf2.innerHTML = projects.length
+    ? projects.map(p => {
+        const cnt = open.filter(t=>t.project===p).length;
+        const on  = filter.type==='project' && filter.value===p ? ' on' : '';
+        return `<div class="fi${on}" onclick="setFilter('project','${esc(p)}')"><span class="fl">◈ ${esc(p)}</span><span class="badge">${cnt}</span></div>`;
+      }).join('')
+    : '<div style="font-size:11px;color:var(--muted2);padding:4px 8px">No projects yet</div>';
+
+  // Active states
+  document.querySelectorAll('[data-sml]').forEach(el => el.classList.toggle('on', filter.type === el.dataset.sml));
+  document.querySelectorAll('[data-pri]').forEach(el => el.classList.toggle('on', filter.type==='priority' && filter.value===el.dataset.pri));
+}
+
+function renderList() {
+  const el  = document.getElementById('vList');
+  const vis = getVisible();
+  if (!vis.length) {
+    el.innerHTML = `<div class="empty"><div class="ei">${filter.type==='done'?'🎉':'🎯'}</div><div class="em">${filter.type==='done'?'No completed tasks yet.':'Nothing here — all clear!'}</div><div class="es">Add a task above to get started.</div></div>`;
+    return;
+  }
+  if (filter.type === 'done') {
+    el.innerHTML = `<div class="tgroup"><div class="gh"><div class="gdot" style="background:var(--green)"></div><div class="gtitle">Completed</div><div class="gcnt">${vis.length}</div></div>${vis.map(t=>taskCard(t)).join('')}</div>`;
+    return;
+  }
+  const gs = groupByTime(vis);
+  let html = '';
+  for (const g of Object.values(gs)) {
+    if (!g.items.length) continue;
+    html += `<div class="tgroup"><div class="gh"><div class="gdot" style="background:${g.color}"></div><div class="gtitle">${g.label}</div><div class="gcnt">${g.items.length}</div></div>${g.items.map(t=>taskCard(t)).join('')}</div>`;
+  }
+  el.innerHTML = html || `<div class="empty"><div class="ei">✨</div><div class="em">Nothing to show.</div></div>`;
+}
+
+function renderKanban() {
+  const el = document.getElementById('vKan');
+  const vis = filter.type === 'all' ? tasks : getVisible().concat(tasks.filter(t=>!isActive(t) && filter.type!=='done'));
+  const cols = [
+    { key:'todo',        label:'Todo',        color:'#64748b' },
+    { key:'in-progress', label:'In Progress', color:'#3b82f6' },
+    { key:'done',        label:'Done',        color:'#22c55e' },
+    { key:'cancelled',   label:'Cancelled',   color:'#475569' },
+  ];
+  el.innerHTML = `<div class="kanban">${cols.map(col => {
+    const items = tasks.filter(t => t.status === col.key);
+    return `<div class="kcol">
+      <div class="kch"><div class="kch-dot" style="background:${col.color}"></div><div class="kch-title">${col.label}</div><div class="kch-cnt">${items.length}</div></div>
+      <div class="kbody">${items.length ? items.map(t=>taskCard(t,true)).join('') : '<div class="kempty">Empty</div>'}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderCal() {
+  const el   = document.getElementById('vCal');
+  const t    = todayStr();
+  const dim  = new Date(calYear, calMonth+1, 0).getDate();
+  const fd   = new Date(calYear, calMonth, 1).getDay();
+  const lbl  = new Date(calYear, calMonth, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const open = tasks.filter(x => isActive(x) && x.dueDate);
+  const byDate = {};
+  for (const tk of open) (byDate[tk.dueDate] = byDate[tk.dueDate]||[]).push(tk);
+
+  let cells = '';
+  const prev = new Date(calYear, calMonth, 0).getDate();
+  for (let i = fd-1; i >= 0; i--) cells += `<div class="calday calother"><div class="calnum">${prev-i}</div></div>`;
+  for (let d = 1; d <= dim; d++) {
+    const ds  = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const tks = byDate[ds]||[];
+    const cls = ds===t ? ' calnow' : '';
+    const pills = tks.slice(0,3).map(tk => {
+      const cat = CATS[tk.category]||CATS.Personal;
+      const prio = PRIO[tk.priority]||PRIO.medium;
+      return `<div class="calpill" style="background:${cat.color}22;color:${cat.color};border-left:2px solid ${prio.color}" onclick="openEdit('${esc(tk.id)}')" title="${esc(tk.title)}">${esc(tk.title)}</div>`;
+    }).join('');
+    const more = tks.length>3 ? `<div class="calmore">+${tks.length-3} more</div>` : '';
+    cells += `<div class="calday${cls}"><div class="calnum">${d}</div>${pills}${more}</div>`;
+  }
+  const trail = (7-(fd+dim)%7)%7;
+  for (let d = 1; d <= trail; d++) cells += `<div class="calday calother"><div class="calnum">${d}</div></div>`;
+
+  el.innerHTML = `<div class="calwrap">
+    <div class="calh">
+      <button class="calnav" onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCal()">← Prev</button>
+      <div class="calm">${lbl}</div>
+      <button class="calnav" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCal()">Next →</button>
+    </div>
+    <div class="calgrid">
+      ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="caldh">${d}</div>`).join('')}
+      ${cells}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════════════════════════════════════ */
+async function addTask() {
+  const title = document.getElementById('qTitle').value.trim();
+  if (!title) { document.getElementById('qTitle').focus(); return; }
+  const fileName = newFileName(title);
+  const task = {
+    id:       demoMode ? nextNumId() : fileName,
+    fileName,
+    title,
+    status:   'todo',
+    priority: document.getElementById('qPri').value,
+    category: document.getElementById('qCat').value,
+    dueDate:  document.getElementById('qDue').value || null,
+    project:  '',
+    contexts: [],
+    created:  todayStr(),
+    completedAt: null,
+    body: '',
+  };
+  tasks.unshift(task);
+  await writeTask(task);
+  document.getElementById('qTitle').value = '';
+  render();
+  document.getElementById('qTitle').focus();
+}
+
+async function cycleStatus(id, e) {
+  e.stopPropagation();
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  const cycle = { 'todo':'in-progress', 'in-progress':'done', 'done':'todo', 'cancelled':'todo' };
+  t.status = cycle[t.status] || 'todo';
+  t.completedAt = t.status === 'done' ? todayStr() : null;
+  await writeTask(t);
+  render();
+}
+
+async function deleteTask(id, fromModal = false, e) {
+  if (e) e.stopPropagation();
+  if (!confirm('Delete this task?')) return;
+  const t = tasks.find(x => x.id === id);
+  if (t && !demoMode) await deleteFileFromDisk(t.fileName);
+  tasks = tasks.filter(x => x.id !== id);
+  if (demoMode) saveDemo();
+  if (fromModal) closeModal();
+  render();
+}
+
+function setFilter(type, value) { filter = { type, value }; render(); }
+
+function setView(v) {
+  view = v;
+  ['list','kan','cal'].forEach(n => {
+    document.getElementById('vb'+n.charAt(0).toUpperCase()+n.slice(1)).classList.toggle('active', v===n||v===({list:'list',kan:'kanban',cal:'calendar'}[n]||n));
+    document.getElementById('v'+n.charAt(0).toUpperCase()+n.slice(1)).style.display = v===n||(n==='list'&&v==='list')||(n==='kan'&&v==='kanban')||(n==='cal'&&v==='calendar') ? 'block' : 'none';
+  });
+  // Fix display logic
+  document.getElementById('vList').style.display = v==='list'     ? 'block' : 'none';
+  document.getElementById('vKan').style.display  = v==='kanban'   ? 'block' : 'none';
+  document.getElementById('vCal').style.display  = v==='calendar' ? 'block' : 'none';
+  document.getElementById('vbList').classList.toggle('active', v==='list');
+  document.getElementById('vbKan').classList.toggle('active', v==='kanban');
+  document.getElementById('vbCal').classList.toggle('active', v==='calendar');
+  renderView();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EDIT MODAL
+═══════════════════════════════════════════════════════════════════════════ */
+function openEdit(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editId = id;
+  document.getElementById('eTitle').value  = t.title;
+  document.getElementById('eBody').value   = t.body   || '';
+  document.getElementById('eStatus').value = t.status || 'todo';
+  document.getElementById('ePri').value    = t.priority || 'medium';
+  document.getElementById('eDue').value    = t.dueDate || '';
+  document.getElementById('eCat').value    = t.category || 'Personal';
+  document.getElementById('eProj').value   = t.project || '';
+  document.getElementById('eCtx').value    = (t.contexts||[]).join(', ');
+  document.getElementById('eFname').textContent = t.fileName || '';
+  document.getElementById('editModal').style.display = 'flex';
+  document.getElementById('eTitle').focus();
+}
+
+function closeModal() {
+  document.getElementById('editModal').style.display = 'none';
+  editId = null;
+}
+
+async function saveEdit() {
+  const t = tasks.find(x => x.id === editId);
+  if (!t) return;
+  const title = document.getElementById('eTitle').value.trim();
+  t.title    = title || t.title;
+  t.body     = document.getElementById('eBody').value;
+  t.status   = document.getElementById('eStatus').value;
+  t.priority = document.getElementById('ePri').value;
+  t.dueDate  = document.getElementById('eDue').value || null;
+  t.category = document.getElementById('eCat').value;
+  t.project  = document.getElementById('eProj').value.trim();
+  t.contexts = document.getElementById('eCtx').value.split(',').map(s=>s.trim()).filter(Boolean);
+  t.completedAt = (t.status === 'done' && !t.completedAt) ? todayStr() : (t.status !== 'done' ? null : t.completedAt);
+  await writeTask(t);
+  closeModal();
+  render();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VAULT BADGE
+═══════════════════════════════════════════════════════════════════════════ */
+function updateVaultBadge() {
+  const badge = document.getElementById('vaultBadge');
+  const name  = document.getElementById('vaultName');
+  if (dirHandle) {
+    badge.classList.remove('demo');
+    name.textContent = '/' + dirHandle.name;
+    badge.title = 'Click to change folder';
+  } else {
+    badge.classList.add('demo');
+    name.textContent = 'Demo Mode';
+    badge.title = 'Click to open a folder of markdown files';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'o') { e.preventDefault(); openFolder(); }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════════════════════ */
+document.getElementById('qDue').value = todayStr();
+loadDemo();
+render();
+</script>
+</body>
+</html>
